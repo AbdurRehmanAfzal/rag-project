@@ -67,12 +67,28 @@ print("Similarity scores:")
 print(similarities)
 
 # Step 7: Sabse zyada similarity wala chunk dhoondna
-best_match_index = np.argmax(similarities)
+# best_match_index = np.argmax(similarities)
+
+# print()
+# print("Sabse relevant chunk ka index:", best_match_index)
+# print("Sabse relevant chunk:", cleaned_chunks[best_match_index])
+# print("Uska similarity score:", similarities[0][best_match_index])
+
+# Step 7 (Updated): Top-3 sabse relevant chunks dhoondna
+
+top_n = 3
+
+# Similarities ko sort karke, sabse bare 3 indexes nikalna
+top_indices = np.argsort(similarities[0])[::-1][:top_n]
 
 print()
-print("Sabse relevant chunk ka index:", best_match_index)
-print("Sabse relevant chunk:", cleaned_chunks[best_match_index])
-print("Uska similarity score:", similarities[0][best_match_index])
+print(f"Top {top_n} relevant chunks:")
+top_chunks = []
+for rank, index in enumerate(top_indices):
+    chunk_text = cleaned_chunks[index]
+    score = similarities[0][index]
+    print(f"{rank+1}. (Score: {score:.4f}) {chunk_text}")
+    top_chunks.append(chunk_text)
 
 # Step 8: OpenAI se poora jawab generate karwana
 
@@ -85,11 +101,12 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Retrieved chunk (context) ko sawal ke sath mila kar ek "prompt" banana
-best_chunk = cleaned_chunks[best_match_index]
+# Top 3 chunks ko ek sath jorna (combine karna)
+context = "\n".join(top_chunks)
 
-prompt = f"""Yahan ek information di gayi hai:
+prompt = f"""Yahan kuch information di gayi hai:
 
-{best_chunk}
+{context}
 
 Is information ke bunyad pe, yeh sawal ka jawab dein: {question}
 """
