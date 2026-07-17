@@ -6,6 +6,8 @@ import numpy as np
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 # .env se API key load karna
 load_dotenv()
@@ -83,3 +85,9 @@ Is information ke bunyad pe, yeh sawal ka jawab dein: {question}
         "answer": answer,
         "sources": top_chunks
     }
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+def read_index():
+    return FileResponse("static/index.html")
