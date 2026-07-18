@@ -918,7 +918,7 @@ function InfoModal({ isOpen, onClose, onContactClick, theme }: { isOpen: boolean
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", duration: 0.5 }}
-            className={`relative w-full max-w-2xl rounded-[2rem] shadow-2xl p-8 md:p-12 overflow-hidden transition-colors duration-500 ${
+            className={`relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-[2rem] shadow-2xl p-8 md:p-12 transition-colors duration-500 ${
               theme === 'dark' ? 'bg-zinc-950 text-zinc-100 border border-zinc-800/80' : 'bg-white text-slate-800'
             }`}
           >
@@ -949,6 +949,22 @@ function InfoModal({ isOpen, onClose, onContactClick, theme }: { isOpen: boolean
                   They can't adapt to every visitor's specific needs.<br/>
                   My portfolio becomes <strong>exactly what you're interested in knowing about me and my work.</strong>
                 </p>
+              </div>
+              <div>
+                <h3 className={`text-xl font-bold mb-2 transition-colors duration-500 ${theme === 'dark' ? 'text-zinc-100' : 'text-slate-900'}`}>Under the hood</h3>
+                <p className="mb-4">
+                  This isn't just a portfolio, it's a working <strong>Retrieval-Augmented Generation (RAG) product</strong> that I designed and built end to end: a Python/FastAPI backend embeds my real career data with sentence-transformers, retrieves the most relevant context per question, and an LLM classifies intent and writes the reply, on a React/TypeScript frontend that renders the matching visual card. Recruiter or engineer, feel free to poke at the architecture as you chat.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="bg-iris text-ink px-4 py-1.5 rounded-full text-[13px] font-medium shadow-sm">React 19 · TypeScript · Vite</span>
+                  <span className="bg-iris text-ink px-4 py-1.5 rounded-full text-[13px] font-medium shadow-sm">Tailwind CSS v4 · Framer Motion</span>
+                  <span className="bg-iris text-ink px-4 py-1.5 rounded-full text-[13px] font-medium shadow-sm">Python · FastAPI</span>
+                  <span className="bg-iris text-ink px-4 py-1.5 rounded-full text-[13px] font-medium shadow-sm">Sentence-Transformers Embeddings</span>
+                  <span className="bg-iris text-ink px-4 py-1.5 rounded-full text-[13px] font-medium shadow-sm">RAG · Cosine-Similarity Retrieval</span>
+                  <span className="bg-iris text-ink px-4 py-1.5 rounded-full text-[13px] font-medium shadow-sm">OpenAI GPT-4o-mini</span>
+                  <span className="bg-iris text-ink px-4 py-1.5 rounded-full text-[13px] font-medium shadow-sm">Docker · Traefik</span>
+                  <span className="bg-iris text-ink px-4 py-1.5 rounded-full text-[13px] font-medium shadow-sm">GitHub Actions CI/CD</span>
+                </div>
               </div>
             </div>
             
