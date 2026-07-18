@@ -33,9 +33,11 @@ change here.
 
 ## 2. Clone the repo on the VPS
 
+Deployed at `/root/rag-project` (any path works, Docker/Traefik don't care —
+just keep it consistent with `VPS_REPO_PATH` in the CI/CD secrets below):
+
 ```bash
-mkdir -p /docker/ai-portfolio
-cd /docker/ai-portfolio
+cd ~
 git clone https://github.com/AbdurRehmanAfzal/rag-project.git
 cd rag-project
 ```
@@ -92,7 +94,7 @@ docker ps   # n8n, traefik, pagereel should all still show "Up"
 ## Updating the site later
 
 ```bash
-cd /docker/ai-portfolio/rag-project
+cd /root/rag-project
 ./deploy/deploy.sh
 ```
 
@@ -139,7 +141,7 @@ committed to the repo) — paste it into a GitHub secret below.
 | `VPS_HOST`       | `72.62.240.10`                                         |
 | `VPS_USER`       | `root` (or your deploy user)                          |
 | `VPS_SSH_KEY`    | The deploy private key, full contents                |
-| `VPS_REPO_PATH`  | `/docker/ai-portfolio/rag-project`                    |
+| `VPS_REPO_PATH`  | `/root/rag-project`                    |
 
 ### Done
 
