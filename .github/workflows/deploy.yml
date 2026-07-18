@@ -1,0 +1,24 @@
+name: Deploy to VPS
+
+# Runs on every push to main: SSHes into the Hostinger VPS and re-runs
+# deploy/deploy.sh there (git pull, reinstall deps, rebuild frontend,
+# restart the backend service). Requires the VPS to already have completed
+# the one-time setup in deploy/DEPLOY.md (steps 1-11) before this can work.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd ${{ secrets.VPS_REPO_PATH }}
+            bash deploy/deploy.sh
