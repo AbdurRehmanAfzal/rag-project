@@ -1,0 +1,20 @@
+services:
+  backend:
+    build: .
+    container_name: ai-portfolio-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - n8n_default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ai-portfolio.entrypoints=web,websecure"
+      - "traefik.http.routers.ai-portfolio.rule=Host(`abdurrehmanafzal.cloud`) || Host(`www.abdurrehmanafzal.cloud`)"
+      - "traefik.http.routers.ai-portfolio.tls=true"
+      - "traefik.http.routers.ai-portfolio.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.ai-portfolio.loadbalancer.server.port=8000"
+
+networks:
+  n8n_default:
+    external: true

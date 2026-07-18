@@ -1,9 +1,9 @@
 name: Deploy to VPS
 
 # Runs on every push to main: SSHes into the Hostinger VPS and re-runs
-# deploy/deploy.sh there (git pull, reinstall deps, rebuild frontend,
-# restart the backend service). Requires the VPS to already have completed
-# the one-time setup in deploy/DEPLOY.md (steps 1-11) before this can work.
+# deploy/deploy.sh there (git pull, docker compose up -d --build). The
+# container joins the existing Traefik/n8n_default setup already on that
+# VPS. Requires the one-time setup in deploy/DEPLOY.md to be done first.
 on:
   push:
     branches: [main]

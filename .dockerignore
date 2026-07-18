@@ -1,0 +1,14 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.env.example
+.git/
+.github/
+static/
+notes.txt
+rag_pipeline.py
+test_embeddings.py
+deploy/
+frontend/node_modules/
+frontend/dist/

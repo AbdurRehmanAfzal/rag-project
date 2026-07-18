@@ -232,8 +232,13 @@ async def chat_endpoint(request: ChatRequest):
         print(f"AI backend fallback used: {e}")
         return get_local_response(request.query)
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Production (Docker) ships a built React app at frontend/dist; local dev
+# without a frontend build falls back to the old static/ hero page.
+if os.path.isdir("frontend/dist"):
+    app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="frontend")
+else:
+    app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.get("/")
-def read_index():
-    return FileResponse("static/index.html")
+    @app.get("/")
+    def read_index():
+        return FileResponse("static/index.html")
