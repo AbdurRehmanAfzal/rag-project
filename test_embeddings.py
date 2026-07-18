@@ -20,7 +20,7 @@ print()
 print("Embedding shape:", embeddings.shape)
 print("Pehli 10 numbers (Sentence 1):", embeddings[0][:10])
 
-# Cosine similarity nikalna
+# Cosine similarity nikalnaa
 def cosine_similarity(a, b):
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
