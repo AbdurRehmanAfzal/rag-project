@@ -182,8 +182,8 @@ def get_local_response(query: str) -> ChatResponse:
     if any(word in q for word in ["project", "portfolio", "chatbot", "rag", "eid", "adsgency", "palletfly", "venuegps", "workfly", "taxi", "wheat", "audit"]):
         return ChatResponse(intent="projects", ai_text="I have displayed Abdur's projects above: an AI real estate chatbot, an EID document processing system for a UAE government client, a news intelligence platform, ad-tech AI features, and several full-stack SaaS platforms.")
 
-    if any(word in q for word in ["skill", "stack", "technology", "python", "django", "fastapi", "react", "langchain"]):
-        return ChatResponse(intent="skills", ai_text="Abdur's core strengths are Python backends (Django, FastAPI), LangChain/RAG pipelines and LLM automation, React/Next.js/Angular frontends, plus AWS/GCP cloud infrastructure and Docker/Kubernetes deployments.")
+    if any(word in q for word in ["skill", "stack", "technology", "python", "django", "fastapi", "react", "langchain", "agent", "agentic", "automation", "voice"]):
+        return ChatResponse(intent="skills", ai_text="Abdur's core strengths are Python backends (Django, FastAPI), Agentic AI and AI Automation (LangChain, CrewAI, n8n), RAG pipelines and LLM orchestration, React/Next.js/Angular frontends, plus AWS/GCP cloud infrastructure and Docker/Kubernetes deployments. He's also expanding into conversational voice agents as an emerging focus area.")
 
     if any(word in q for word in ["experience", "resume", "work", "job", "career", "b1 properties", "aircod", "synares", "intern"]):
         return ChatResponse(intent="resume", ai_text="I have displayed Abdur's professional timeline above, from early web development work to his current role building production AI systems at B1 Properties in Dubai, UAE.")
