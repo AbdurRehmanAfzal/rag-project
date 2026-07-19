@@ -10,7 +10,6 @@ import re
 from dotenv import load_dotenv
 from openai import OpenAI
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 
 # .env se API key load karna
 load_dotenv()
@@ -39,12 +38,6 @@ model = SentenceTransformer('all-MiniLM-L6-v2')
 print("Model load ho gaya!")
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-# notes.txt padhna aur chunks banana
-# with open("notes.txt", "r") as file:
-#     content = file.read()
-
-# chunks = content.split("\n")
 
 with open("knowledge_base.txt", "r", encoding="utf-8") as file:
     content = file.read()
@@ -232,13 +225,6 @@ async def chat_endpoint(request: ChatRequest):
         print(f"AI backend fallback used: {e}")
         return get_local_response(request.query)
 
-# Production (Docker) ships a built React app at frontend/dist; local dev
-# without a frontend build falls back to the old static/ hero page.
+# Production (Docker) ships a built React app at frontend/dist.
 if os.path.isdir("frontend/dist"):
     app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="frontend")
-else:
-    app.mount("/static", StaticFiles(directory="static"), name="static")
-
-    @app.get("/")
-    def read_index():
-        return FileResponse("static/index.html")
