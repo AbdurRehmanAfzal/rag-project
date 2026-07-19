@@ -1,0 +1,53 @@
+# Abdur Rehman Afzal
+
+> AI Engineer & Full-Stack Python Developer based in Lahore, Pakistan, with 7+ years of experience shipping production systems across 9 live domains. Specializes in production RAG (Retrieval-Augmented Generation) pipelines, LLM-powered automation, AI agents, and computer vision, on top of a strong backend foundation in Django, FastAPI, and cloud infrastructure.
+
+This site (https://abdurrehmanafzal.cloud/) is itself a working RAG product: a Python/FastAPI backend embeds Abdur's real career data with sentence-transformers, retrieves the most relevant context per question, and an LLM (GPT-4o-mini) classifies intent and writes the reply, on a React/TypeScript frontend. Ask its chat assistant directly for the most current and detailed answers.
+
+## Current Role
+
+Full-Stack Python Developer at B1 Properties (Dubai, UAE), Jan 2025-Present: built a LangChain + RAG (ChromaDB) real estate chatbot, an AI Property Valuation System using GPT-4, an n8n GPT-4 reporting automation pipeline, and the production platform b1properties.ae.
+
+## Experience
+
+- B1 Properties (Dubai, UAE) — Full-Stack Python Developer, Jan 2025-Present
+- Aircod Technologies (Lahore, Pakistan) — Senior Python Backend & AI Developer, 2024-2025
+- Synares Systems (Lahore, Pakistan) — Senior Software Engineer II / Backend Team Lead, 2023-2024
+- Merik Solutions (Islamabad, Pakistan) — Full-Stack Python Developer, 2022-2023
+- Viral Square (Lahore, Pakistan) — Python Developer, 2021-2022
+- UEnergy Solar (Huddersfield, UK, Remote) — Software Engineer, 2018-2021
+- University of Central Punjab (UCP) — Part-Time CS Instructor, 2018-2021
+
+## Selected Projects
+
+- B1 Chatbot: production AI real estate assistant (GPT-4, LangChain, ChromaDB, Django, Telegram Bot API)
+- AI-Powered EID Document Processing System: 6-stage YOLOv8 + OCR pipeline for a UAE government client (Hamriyah Free Zone Authority)
+- AI-Assisted News Intelligence Platform: multi-source RSS ingestion, GPT-4 summarization, automated reporting
+- AdsGency AI: AI-powered ad content generation for a platform managing $50M+ in ad spend
+- B1 Properties (b1properties.ae): full-stack luxury real estate platform, Django 5.2 + Next.js 16
+- EasyKost: AI-driven product cost estimation system (Django, Firestore, gRPC)
+- VenueGPS (develop.venuegps.com): geospatial venue & events discovery platform
+- Palletfly (dbr.palletfly.com): B2B supply chain & inventory SaaS, 40,000+ lines of Python
+- WMC Pricing Intelligence Platform: cloud-native fintech mortgage comparison engine on GKE
+- TimeKeepers / WorkFly (workfly.app): multi-tenant workforce management SaaS with GPS geofencing
+- TRIXI TAXI: real-time ride-sharing admin dashboard
+- Ericsson & Huawei LTE/WCDMA GPL Audit System: telecom network configuration auditing
+
+## Core Skills
+
+AI/ML: LangChain, CrewAI, RAG, LLMs, GPT-4, Prompt Engineering, Embeddings, Vector DBs (ChromaDB, Pinecone), YOLOv8, PyTorch, OpenCV, OCR, n8n
+Backend: Python, Django, Django REST Framework, FastAPI, Flask, Celery, WebSockets, gRPC
+Frontend: React, Next.js, Angular, TypeScript, TailwindCSS
+Cloud & DevOps: AWS, Google Cloud Platform, Docker, Kubernetes, GitHub Actions
+Databases: PostgreSQL, MySQL, MongoDB, Redis, Firestore, BigQuery
+
+## Education
+
+Bachelor of Science in Computer Science, University of Central Punjab (UCP), Lahore, Pakistan — June 2018.
+
+## Contact
+
+- Email: abdurrehmanafzal786@gmail.com
+- LinkedIn: https://www.linkedin.com/in/abdurrehmanafzal/
+- GitHub: https://github.com/AbdurRehmanAfzal
+- Resume: https://abdurrehmanafzal.cloud/Resume-AbdurRehmanAfzal.pdf
