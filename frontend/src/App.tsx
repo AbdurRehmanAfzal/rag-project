@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowRight, ArrowLeft, Info, Briefcase, Code2, User, FileText, X, ChevronLeft, ChevronRight, Sun, Moon, Play, Pause as PauseIcon, Award, Mail } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Info, Briefcase, Code2, User, FileText, X, ChevronLeft, ChevronRight, Sun, Moon, Play, Pause as PauseIcon, Award, Mail, GraduationCap } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring, type MotionValue } from 'framer-motion';
 import { projectsData, type Project } from './data/projects';
 import { skillsData } from './data/skills';
@@ -349,6 +349,20 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    // Deep-link support for the Learning Hub's "Ask the AI Assistant"
+    // button (?q=...): auto-send it as the first question, then strip
+    // the param so a refresh doesn't resend it. Empty deps array is
+    // intentional — this should run once on mount, not on every
+    // re-render that a new handleQuery closure would otherwise trigger.
+    const prefilledQuestion = new URLSearchParams(window.location.search).get('q');
+    if (prefilledQuestion) {
+      handleQuery(prefilledQuestion, 'general');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className={`min-h-screen relative flex flex-col font-sans transition-colors duration-500 ${
       theme === 'dark' 
@@ -486,6 +500,18 @@ export default function App() {
             }`}
           >
             <Mail className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => window.open('/learn/', '_blank', 'noopener')}
+            title="AI Engineering Learning Hub"
+            aria-label="AI Engineering Learning Hub"
+            className={`p-2.5 rounded-full transition-colors border border-transparent backdrop-blur-xl cursor-pointer ${
+              theme === 'dark'
+                ? 'hover:bg-white/5 hover:border-zinc-800 text-iris'
+                : 'hover:bg-black/5 hover:border-slate-200 text-iris'
+            }`}
+          >
+            <GraduationCap className="w-5 h-5" />
           </button>
           <button
             onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}

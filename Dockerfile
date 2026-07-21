@@ -14,6 +14,7 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY main.py knowledge_base.txt ./
+COPY learn-hub ./learn-hub
 COPY --from=frontend-build /app/frontend/dist ./frontend/dist
 
 EXPOSE 8000
