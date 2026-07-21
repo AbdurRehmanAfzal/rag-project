@@ -225,6 +225,12 @@ async def chat_endpoint(request: ChatRequest):
         print(f"AI backend fallback used: {e}")
         return get_local_response(request.query)
 
+# AI Engineering Learning Hub: a small static site (data-driven from
+# learn-hub/topics.json, no LLM at runtime) mounted at /learn. Registered
+# before the catch-all "/" mount below so it takes priority for that path.
+if os.path.isdir("learn-hub"):
+    app.mount("/learn", StaticFiles(directory="learn-hub", html=True), name="learn-hub")
+
 # Production (Docker) ships a built React app at frontend/dist.
 if os.path.isdir("frontend/dist"):
     app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="frontend")

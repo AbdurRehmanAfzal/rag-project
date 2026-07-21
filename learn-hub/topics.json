@@ -1,0 +1,484 @@
+{
+  "categories": [
+    {
+      "id": "ml-fundamentals",
+      "name": "Machine Learning Fundamentals",
+      "topics": [
+        {
+          "id": "features-labels-weights-bias",
+          "title": "Features, Labels, Weights & Bias",
+          "summary": "The building blocks of every supervised learning model.",
+          "whatIs": "A feature is an input given to the model (e.g. bedrooms, square footage). A label is the value the model tries to predict (e.g. price). A weight represents how important each feature is. A bias is an extra constant that shifts the prediction, so the model isn't forced to pass through the origin (0,0).",
+          "why": "These four concepts are the foundation of nearly every supervised learning model, from Linear Regression to Neural Networks. Bias in particular becomes essential once features are normalized.",
+          "how": [
+            "prediction = (feature1 * weight1) + (feature2 * weight2) + ... + bias",
+            "Weights and bias start at zero and are learned during training",
+            "Without bias, the model is stuck passing through (0,0) — not enough once features are scaled between 0 and 1"
+          ],
+          "code": "weight = 0\nbias = 0\nprediction = weight * scaled_sqft + bias",
+          "useCases": [
+            "Every linear and logistic regression model",
+            "The final output layer of a neural network",
+            "Any model that needs to combine multiple weighted inputs into one prediction"
+          ],
+          "qa": [
+            { "q": "Why is bias necessary?", "a": "When features are normalized to a 0-1 range, the smallest data point becomes 0. Without bias, weight * 0 always equals 0 — no matter what the correct answer should be. Bias lets the model reach the correct value even from that 0 point, similar to a taxi's base fare that applies even at zero distance." },
+            { "q": "How does a weight get 'learned'?", "a": "Through Gradient Descent — the model makes a prediction, computes the error against the actual value, and nudges the weight in small steps to reduce that error, repeating until the error is minimized." }
+          ]
+        },
+        {
+          "id": "vectors-matrices",
+          "title": "Vectors, Matrices & Matrix Multiplication",
+          "summary": "How data and computation are represented efficiently in ML.",
+          "whatIs": "A vector is a list of numbers (one data point). A matrix is a collection of vectors (a whole dataset), with dimensions rows x columns. Matrix multiplication lets you compute all predictions at once, without loops.",
+          "why": "Computers only understand numbers, so data is represented as vectors/matrices. Matrix operations run extremely fast on hardware (GPUs), which is why ML training can happen at scale.",
+          "how": [
+            "Rule: to multiply Matrix A (m x n) by Matrix B (n x p), A's columns must equal B's rows",
+            "The result has dimensions (m x p)",
+            "X.dot(weights) computes predictions for an entire dataset in a single line"
+          ],
+          "code": "import numpy as np\nX = np.array([[3, 1200, 2], [4, 1500, 3]])\nweights = np.array([10000, 150, 5000])\npredictions = X.dot(weights)  # all predictions in one line",
+          "useCases": [
+            "Batch prediction across an entire dataset",
+            "Forward passes in neural networks",
+            "Any vectorized (loop-free) numerical computation"
+          ],
+          "qa": [
+            { "q": "What is the rule for matrix multiplication?", "a": "The number of columns in the first matrix must equal the number of rows in the second. The result takes the row count of the first matrix and the column count of the second." },
+            { "q": "Why is data represented as matrices in ML?", "a": "So that fast, vectorized mathematical operations can run across thousands of data points at once, instead of slow Python loops." }
+          ]
+        },
+        {
+          "id": "normalization",
+          "title": "Normalization / Feature Scaling",
+          "summary": "Bringing every feature onto a common scale before training.",
+          "whatIs": "Scaling every feature into a common range (0 to 1): scaled_value = (value - min) / (max - min).",
+          "why": "Different features live on different scales (e.g. square footage: 900-2000, bedrooms: 2-5). Without normalization, gradient descent becomes unstable because large-scale features dominate small-scale ones.",
+          "how": [
+            "Compute min and max for each column separately (axis=0)",
+            "Apply the formula to convert every value into the 0-1 range",
+            "New/test data must be scaled using the TRAINING data's min/max — never recompute a new min/max"
+          ],
+          "code": "minimum = X.min(axis=0)\nmaximum = X.max(axis=0)\nX_scaled = (X - minimum) / (maximum - minimum)",
+          "useCases": [
+            "Any gradient-descent based model with multiple features",
+            "Preprocessing pipelines before training",
+            "Preparing new inference data consistently with training data"
+          ],
+          "qa": [
+            { "q": "How should new data be scaled at prediction time?", "a": "Using the same min/max values computed from the training data — never a freshly computed min/max from the new data, or the scale would be inconsistent." },
+            { "q": "What happens if you skip normalization?", "a": "Gradient descent can become unstable — a large-scale feature's gradient can dominate a small-scale feature's gradient, slowing or destabilizing training." }
+          ]
+        },
+        {
+          "id": "loss-functions",
+          "title": "Loss Functions (MAE, MSE, RMSE)",
+          "summary": "Turning an entire dataset's error into one number to minimize.",
+          "whatIs": "A loss function reduces the error across an entire dataset to a single number. MAE = mean(|error|). MSE = mean(error^2). RMSE = sqrt(MSE).",
+          "why": "Training needs one number to minimize. MSE is more common because squaring makes larger errors count more, which produces a smoother gradient for optimization.",
+          "how": [
+            "MAE: simple, easy to interpret, treats every error equally",
+            "MSE: penalizes large errors more heavily (more sensitive to outliers)",
+            "RMSE: the square root of MSE, back in the original unit"
+          ],
+          "code": "error = actual - prediction\nmae = np.mean(np.abs(error))\nmse = np.mean(error ** 2)\nrmse = np.sqrt(mse)",
+          "useCases": [
+            "Choosing an evaluation metric for a regression model",
+            "Deciding the loss function to minimize during training",
+            "Comparing model performance across experiments"
+          ],
+          "qa": [
+            { "q": "Why is MSE used more often than MAE during training?", "a": "Squaring penalizes larger errors more heavily, pushing the model to avoid big mistakes, and it produces a smoother gradient that's easier to optimize." },
+            { "q": "Where does the -2 come from when differentiating MSE?", "a": "Loss = (actual - prediction)^2. Differentiating brings the power '2' down via the power rule, and the negative sign inside the expression contributes another '-1' — together they form '-2'." }
+          ]
+        },
+        {
+          "id": "gradient-descent",
+          "title": "Gradient Descent & Learning Rate",
+          "summary": "The core optimization algorithm behind how models learn.",
+          "whatIs": "Gradient Descent is an optimization algorithm that adjusts weights/bias in small steps based on the error. The Learning Rate controls how big each step is.",
+          "why": "This is the mechanism by which a model actually 'learns' — weights start random or at zero and converge toward correct values through training.",
+          "how": [
+            "new_weight = old_weight - (learning_rate * gradient)",
+            "Too small a learning rate: training is very slow. Too large: training can diverge (never converge)",
+            "Each step: predict, compute error, compute gradient, update weight/bias — repeated in a loop"
+          ],
+          "code": "for step in range(1000):\n    prediction = weight * x + bias\n    error = actual - prediction\n    w_grad = -2 * np.mean(x * error)\n    b_grad = -2 * np.mean(error)\n    weight -= learning_rate * w_grad\n    bias -= learning_rate * b_grad",
+          "useCases": [
+            "Training every neural network in existence",
+            "Fitting linear/logistic regression models from scratch",
+            "Any iterative optimization problem with a differentiable loss"
+          ],
+          "qa": [
+            { "q": "What happens if the learning rate is too small or too large?", "a": "Too small: training takes thousands of extra steps and is very slow. Too large: the model overshoots the target and diverges — it never converges, and error can grow instead of shrinking." },
+            { "q": "What value do weights and bias start at?", "a": "In Linear/Logistic Regression, zero. In Neural Networks, RANDOM values (not zero) — so every neuron learns something different; otherwise the 'symmetry problem' causes all neurons to learn identically." }
+          ]
+        },
+        {
+          "id": "linear-regression",
+          "title": "Linear Regression",
+          "summary": "Predicting continuous numeric values from features.",
+          "whatIs": "An ML algorithm that predicts continuous numbers (like price), assuming a linear relationship between features and the output.",
+          "why": "It's the most fundamental regression model — the foundation for real-world numeric predictions like price, salary, or temperature.",
+          "how": [
+            "prediction = (feature1 * w1) + (feature2 * w2) + ... + bias",
+            "Weights/bias are learned by minimizing MSE loss via Gradient Descent",
+            "In scikit-learn: LinearRegression().fit(X, y) — internally this same process (or the Normal Equation) runs"
+          ],
+          "code": "from sklearn.linear_model import LinearRegression\nmodel = LinearRegression()\nmodel.fit(X, y)\nprediction = model.predict(new_X)",
+          "useCases": [
+            "House price prediction from features like size and location",
+            "Sales forecasting",
+            "Any scenario predicting a continuous numeric outcome from linear relationships"
+          ],
+          "qa": [
+            { "q": "When does Linear Regression fail?", "a": "When the data has a non-linear pattern (e.g. an XOR-type relationship) — a straight line cannot fit that pattern. Non-linear models or neural networks are needed there." },
+            { "q": "How does Multiple Linear Regression differ from Simple Linear Regression?", "a": "Simple has one feature. Multiple has two or more features, each with its own weight — all weights are learned simultaneously via matrix multiplication." }
+          ]
+        },
+        {
+          "id": "logistic-regression-sigmoid",
+          "title": "Logistic Regression & Sigmoid",
+          "summary": "Turning a linear formula into a 0-1 probability for classification.",
+          "whatIs": "A model for classification (predicting yes/no). The Sigmoid function squeezes any number into the 0-1 range: sigmoid(z) = 1 / (1 + e^-z).",
+          "why": "Linear Regression can output any number from -infinity to +infinity, but classification needs a probability between 0 and 1. Sigmoid guarantees that.",
+          "how": [
+            "z = (weight * x) + bias  (the linear formula)",
+            "prediction = sigmoid(z)  (a 0-1 probability)",
+            "If prediction > 0.5, predict Class 1, otherwise Class 0",
+            "Loss function: Log Loss / Binary Cross-Entropy (not MSE)"
+          ],
+          "code": "def sigmoid(z):\n    return 1 / (1 + np.exp(-z))\n\nz = weight * x + bias\nprobability = sigmoid(z)\nresult = \"Pass\" if probability > 0.5 else \"Fail\"",
+          "useCases": [
+            "Spam vs. not-spam classification",
+            "Pass/fail or approve/reject predictions",
+            "The final layer of a binary classification neural network"
+          ],
+          "qa": [
+            { "q": "Why is Log Loss used instead of MSE for classification?", "a": "MSE doesn't work well with probabilities (0-1). Log Loss is specifically designed so that a badly wrong prediction produces a very large loss, which makes the model learn faster." },
+            { "q": "Why is it called 'Logistic Regression' if it's used for classification?", "a": "It's a historical name — internally it uses a linear formula (like regression), but the sigmoid activation converts the output into a probability/classification." }
+          ]
+        },
+        {
+          "id": "overfitting-underfitting",
+          "title": "Overfitting, Underfitting & Train/Test Split",
+          "summary": "Diagnosing whether a model actually generalizes.",
+          "whatIs": "Underfitting means the model never learned the pattern (poor on both training and test data). Overfitting means the model 'memorized' the training data and fails on new data. Train/Test Split divides data into two parts so real-world performance can be measured.",
+          "why": "This is one of the most common production problems — a model that's 100% accurate on training data but performs poorly on new data is useless in production.",
+          "how": [
+            "High training accuracy + low test accuracy = the clearest sign of overfitting",
+            "An underfit model: both accuracies are low",
+            "Solutions: more data, a simpler model, regularization, or monitoring via train/test split"
+          ],
+          "code": "from sklearn.model_selection import train_test_split\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)\nmodel.fit(X_train, y_train)\nprint(model.score(X_train, y_train), model.score(X_test, y_test))",
+          "useCases": [
+            "Validating any model before deployment",
+            "Diagnosing why a model performs well in testing but poorly in production",
+            "Deciding when to add regularization or collect more data"
+          ],
+          "qa": [
+            { "q": "How do you know if a model is overfitting?", "a": "Training accuracy is very high (e.g. 99-100%) while test/validation accuracy is noticeably lower — that gap is the clearest signal of overfitting." },
+            { "q": "What are common ways to prevent overfitting?", "a": "More training data, a simpler model (less complexity), regularization, dropout (in neural networks), and regularly monitoring performance via cross-validation." }
+          ]
+        },
+        {
+          "id": "neural-networks-backprop",
+          "title": "Neural Networks & Backpropagation",
+          "summary": "Chaining simple units together to learn complex, non-linear patterns.",
+          "whatIs": "A neuron is sigmoid(weight * input + bias) — essentially Logistic Regression. A Neural Network chains many neurons into layers (Input -> Hidden -> Output) to learn complex, non-linear patterns.",
+          "why": "A single neuron (Logistic Regression) can only understand linear patterns. Real-world complex problems (image recognition, XOR, language) require multiple layers.",
+          "how": [
+            "Forward Pass: data flows from input to output, layer by layer",
+            "Weights start RANDOM (to avoid the symmetry problem), never zero",
+            "Backpropagation: the output error is sent backward so each layer can compute its own gradient and update its weights"
+          ],
+          "code": "hidden = sigmoid(X.dot(w1) + b1)\noutput = sigmoid(hidden.dot(w2) + b2)\nerror = y - output\n# Backprop: send the error backward\nd_output = error * sigmoid_derivative(output)\nerror_hidden = d_output.dot(w2.T)\nd_hidden = error_hidden * sigmoid_derivative(hidden)",
+          "useCases": [
+            "Image and speech recognition",
+            "Any problem with complex, non-linear relationships (e.g. XOR)",
+            "The foundation architecture behind deep learning and LLMs"
+          ],
+          "qa": [
+            { "q": "What does backpropagation actually do?", "a": "It computes the output layer's error and sends it backward toward the hidden layers, so each layer can compute its share of the gradient and update its own weights. That's why it's called 'back'-propagation." },
+            { "q": "Why do neural network weights start random instead of zero?", "a": "If all weights started at zero, every hidden neuron would learn EXACTLY the same thing (the symmetry problem) — there would be no diversity in the network. Random initialization lets each neuron learn along a different path." }
+          ]
+        },
+        {
+          "id": "decision-trees",
+          "title": "Decision Trees",
+          "summary": "Splitting data with a sequence of yes/no questions.",
+          "whatIs": "A model that splits data into smaller, 'purer' groups by asking a sequence of if-else questions (e.g. 'Is credit score high?'), until it reaches a final decision (leaf).",
+          "why": "A completely different approach from weight/gradient-descent based models — easy to interpret (like a set of rules), and works well with categorical data.",
+          "how": [
+            "Starting from the Root Node, the 'best split' is chosen at each step using Gini Impurity or Entropy",
+            "The best split is the one that divides data into the 'purest' possible groups",
+            "A Leaf Node holds the final answer/class",
+            "max_depth controls overfitting (without a limit, a tree can memorize every training point)"
+          ],
+          "code": "from sklearn.tree import DecisionTreeClassifier\nmodel = DecisionTreeClassifier(max_depth=3)\nmodel.fit(X, y)\nprediction = model.predict(new_X)",
+          "useCases": [
+            "Loan approval decisions",
+            "Any scenario needing an interpretable, rule-based model",
+            "As a building block for ensemble methods like Random Forest"
+          ],
+          "qa": [
+            { "q": "How does a Decision Tree choose the 'best split'?", "a": "Using a metric like Gini Impurity or Entropy — whichever split divides the data into the 'purest' groups (each group being mostly one class) is chosen." },
+            { "q": "Why are Decision Trees so prone to overfitting?", "a": "Without a depth limit, a tree keeps splitting until it perfectly classifies every training point — effectively memorizing the training data instead of generalizing to new data." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rag-ai-engineering",
+      "name": "RAG & AI Engineering",
+      "topics": [
+        {
+          "id": "embeddings",
+          "title": "Embeddings",
+          "summary": "Converting text into numbers that capture meaning.",
+          "whatIs": "Converting text into numbers (a vector) such that text with similar MEANING gets similar numbers — even if the words themselves are completely different.",
+          "why": "Computers only understand numbers. Embeddings capture the 'meaning' of text, enabling semantic search — search based on meaning, not just keyword matching.",
+          "how": [
+            "A transformer-based model (e.g. all-MiniLM-L6-v2) converts text into 300-1000+ numbers",
+            "'programmer' and 'software engineer' — completely different words, but similar embeddings (because the meaning is similar)",
+            "The SAME model must be used for both storing and searching, otherwise comparing the vectors is meaningless"
+          ],
+          "code": "from sentence_transformers import SentenceTransformer\nmodel = SentenceTransformer('all-MiniLM-L6-v2')\nembedding = model.encode([\"He is a software engineer\"])\nprint(embedding.shape)  # (1, 384)",
+          "useCases": [
+            "Semantic search engines",
+            "The retrieval step of a RAG pipeline",
+            "Recommendation systems based on content similarity"
+          ],
+          "qa": [
+            { "q": "Why are embeddings better than keyword search?", "a": "Keyword search only finds exact or similar words. Embeddings capture 'meaning' — 'programmer' and 'software engineer' share no common word, but embeddings will still recognize them as similar." },
+            { "q": "What happens if you use Model A to store and Model B to search?", "a": "The two models produce embeddings in completely different 'numerical languages' — comparing them is meaningless. The same model must be used consistently." }
+          ]
+        },
+        {
+          "id": "chunking",
+          "title": "Chunking Strategy",
+          "summary": "Breaking documents into retrievable, self-contained pieces.",
+          "whatIs": "Splitting a large document into small, self-contained 'chunks', so retrieval returns only the relevant piece — not the entire document.",
+          "why": "If the whole document is one chunk, the LLM receives a lot of irrelevant text every time. Smaller chunks give precise retrieval and also save context window/cost.",
+          "how": [
+            "Naive approach: split line by line — fine for small, simple data",
+            "Better approach: paragraph-level, 'one complete idea = one chunk'",
+            "Critical rule: every chunk should be 'self-contained' — use full names instead of pronouns ('he'), so a chunk retrieved alone still gives a complete answer"
+          ],
+          "code": "chunks = content.split(\"\\n\\n\")  # paragraph-level split\ncleaned_chunks = [c.strip() for c in chunks if c.strip() != \"\"]",
+          "useCases": [
+            "Preparing any long document (resume, manual, knowledge base) for RAG",
+            "Splitting PDFs or articles into searchable units",
+            "Building a knowledge base for a chatbot"
+          ],
+          "qa": [
+            { "q": "What's the trade-off in choosing chunk size?", "a": "Too small: context can become fragmented and incomplete. Too large: irrelevant information gets pulled in and retrieval precision drops. Finding the right balance (often 200-500 words) matters." },
+            { "q": "What does it mean for chunks to be 'self-contained'?", "a": "Each chunk should use actual names/subjects instead of pronouns ('he', 'it'), so that if only that one chunk is retrieved (without surrounding context), it still makes complete sense on its own." }
+          ]
+        },
+        {
+          "id": "cosine-similarity",
+          "title": "Cosine Similarity & Semantic Search",
+          "summary": "Measuring how close two pieces of meaning are.",
+          "whatIs": "A way to measure how 'close' two embeddings (vectors) are. The result ranges from -1 to 1: 1 = identical meaning, 0 = unrelated, -1 = opposite meaning.",
+          "why": "This powers the 'retrieval' step of RAG — the question's embedding is compared against every chunk's embedding to find the most 'meaningfully close' chunks.",
+          "how": [
+            "similarity = dot(A, B) / (norm(A) * norm(B))",
+            "Similarity is computed against every chunk, and the highest-scoring chunks are retrieved",
+            "In scikit-learn: cosine_similarity(question_embedding, chunk_embeddings)"
+          ],
+          "code": "from sklearn.metrics.pairwise import cosine_similarity\nsimilarities = cosine_similarity(question_embedding, chunk_embeddings)\nbest_index = np.argmax(similarities[0])",
+          "useCases": [
+            "Ranking search results by relevance",
+            "Finding the most relevant chunks in a RAG pipeline",
+            "Deduplicating or clustering similar text"
+          ],
+          "qa": [
+            { "q": "How is cosine similarity different from Euclidean distance?", "a": "Cosine similarity compares the DIRECTION (angle) of vectors, not their magnitude (length) — making it more suitable for text embeddings, where the 'angle of meaning' matters more than length." },
+            { "q": "If two texts are completely unrelated, what would the cosine similarity be?", "a": "Close to 0 — meaning there's no meaningful relationship between the two vectors (similar to a perpendicular angle)." }
+          ]
+        },
+        {
+          "id": "top-k-retrieval",
+          "title": "Top-K Retrieval",
+          "summary": "Retrieving multiple relevant chunks instead of just one.",
+          "whatIs": "Instead of retrieving only the single most relevant chunk, retrieving the top-N (e.g. top-3) most relevant chunks, so the LLM gets fuller context.",
+          "why": "A single chunk can miss important context. Top-K gives the LLM information from multiple angles, producing more complete answers — but too many (e.g. top-50) can introduce irrelevant noise.",
+          "how": [
+            "Sort all similarities (argsort), then reverse (highest to lowest)",
+            "Select only the top N (typically 3-5) chunks",
+            "Combine these chunks into a single 'context' string to pass to the LLM"
+          ],
+          "code": "top_indices = np.argsort(similarities[0])[::-1][:3]\ntop_chunks = [chunks[i] for i in top_indices]\ncontext = \"\\n\".join(top_chunks)",
+          "useCases": [
+            "Any production RAG system's retrieval step",
+            "Search result ranking and display",
+            "Balancing answer completeness against token cost"
+          ],
+          "qa": [
+            { "q": "How do you choose the value of K in Top-K?", "a": "It's a trade-off: a higher K means more complete context but more noise/cost; a lower K is more precise but may miss information. Typically start around 3-5 and tune with evaluation." },
+            { "q": "What's the problem with retrieving only the best single chunk?", "a": "If relevant information is spread across multiple chunks, retrieving only the top one causes the rest to be missed, and the answer can end up incomplete." }
+          ]
+        },
+        {
+          "id": "rag-pipeline",
+          "title": "RAG Pipeline (Retrieval-Augmented Generation)",
+          "summary": "Giving an LLM real, grounded information before it answers.",
+          "whatIs": "An architecture that lets an LLM first 'retrieve' relevant information, then 'augment' its context with that information, so it can 'generate' an accurate, grounded answer.",
+          "why": "LLMs have a knowledge cutoff and don't know private or custom data. RAG gives them an 'open-book exam' — it hands them the right 'page' so they answer from it instead of guessing.",
+          "how": [
+            "1. Split the document into chunks",
+            "2. Generate and store an embedding for each chunk",
+            "3. When a question arrives, embed it and find the relevant chunks (Retrieval)",
+            "4. Combine retrieved chunks + the question into a single prompt (Augmentation)",
+            "5. Send this prompt to the LLM to generate the final answer (Generation)"
+          ],
+          "code": "context = \"\\n\".join(top_chunks)\nprompt = f\"Here is some information:\\n{context}\\n\\nQuestion: {question}\"\nresponse = client.chat.completions.create(\n    model=\"gpt-4o-mini\",\n    messages=[{\"role\": \"user\", \"content\": prompt}]\n)",
+          "useCases": [
+            "Customer support chatbots grounded in company documentation",
+            "Portfolio/resume assistants (like this one)",
+            "Enterprise search over private documents"
+          ],
+          "qa": [
+            { "q": "When is RAG better than fine-tuning?", "a": "RAG is better when data changes frequently (you need real-time updates) and you need a fast, cost-effective implementation. Fine-tuning is better when you need to permanently change the model's behavior or style." },
+            { "q": "How does RAG reduce hallucination?", "a": "Instead of letting the LLM guess, it's given ACTUAL retrieved data as context — the model answers from that grounded information rather than 'recalling' from training." }
+          ]
+        },
+        {
+          "id": "conversation-memory",
+          "title": "Conversation Memory (Multi-Turn Chat)",
+          "summary": "Letting a chatbot remember previous turns in the conversation.",
+          "whatIs": "Letting a chatbot 'remember' previous questions and answers, so context-dependent questions (like 'which of these is the cheapest?') are understood correctly.",
+          "why": "LLM APIs are inherently 'stateless' — they remember nothing on their own. Every new message must be sent along with the entire prior conversation so the LLM has context.",
+          "how": [
+            "The messages array has 3 roles: system (instructions), user, and assistant",
+            "On every new request, the entire prior history plus the new message is sent together",
+            "Multiple users are tracked separately using a unique 'Session ID' for each"
+          ],
+          "code": "messages = [{\"role\": \"system\", \"content\": SYSTEM_PROMPT}]\nmessages.extend(history)  # prior conversation\nmessages.append({\"role\": \"user\", \"content\": question})\nresponse = client.chat.completions.create(model=\"gpt-4o-mini\", messages=messages)",
+          "useCases": [
+            "Any multi-turn chatbot or virtual assistant",
+            "Customer support flows that build on earlier context",
+            "Follow-up question handling in a RAG system"
+          ],
+          "qa": [
+            { "q": "Does the LLM itself remember the conversation?", "a": "No — LLM APIs are completely 'stateless', every call is independent. Even apps like ChatGPT resend the entire prior conversation behind the scenes on every message." },
+            { "q": "How are multiple users' conversations kept separate?", "a": "Each user/browser is assigned a unique Session ID (e.g. a UUID), and their history is stored separately, keyed by that ID." }
+          ]
+        },
+        {
+          "id": "function-calling",
+          "title": "Function Calling / Tool Use (AI Agents)",
+          "summary": "Letting an LLM decide when to call real functions and take action.",
+          "whatIs": "Giving the LLM a list of available 'tools/functions' instead of only letting it generate text, so it can decide when to 'call' a function — like checking a database or performing a calculation.",
+          "why": "LLMs can't reliably do calculations, don't know real-time data, and can't take 'actions' on their own. Function calling gives them decision-making power, while actual execution stays in the developer's code — this is the core concept behind AI Agents.",
+          "how": [
+            "1. Send the LLM the question plus a schema (JSON) describing available 'tools'",
+            "2. The LLM decides: answer normally, or call a function",
+            "3. If a function call is needed, the LLM specifies which function and with what arguments",
+            "4. The developer's code actually executes that function and returns the result to the LLM",
+            "5. The LLM turns that result into a natural language answer (this takes 2 API calls)"
+          ],
+          "code": "tools = [{\"type\": \"function\", \"function\": {\n    \"name\": \"get_property_details\",\n    \"description\": \"Get details about a specific property by ID\",\n    \"parameters\": {\"type\": \"object\", \"properties\": {\n        \"property_id\": {\"type\": \"string\"}}, \"required\": [\"property_id\"]}\n}}]\nresponse = client.chat.completions.create(model=\"gpt-4o-mini\", messages=messages, tools=tools)\nif response.choices[0].message.tool_calls:\n    # the LLM requested a function call — we execute it",
+          "useCases": [
+            "AI agents that check databases, book appointments, or send emails",
+            "Chatbots that need real-time or precise data (not guesses)",
+            "Multi-step agentic workflows chaining several tools together"
+          ],
+          "qa": [
+            { "q": "Does the LLM execute the function itself?", "a": "No — the LLM only 'decides' which function to call and with what values. Actual execution always happens in the developer's own code, which keeps security and control in the developer's hands." },
+            { "q": "How does Function Calling relate to AI Agents?", "a": "Function Calling is what turns an LLM from 'just talking' into 'taking action'. When an LLM autonomously chains multiple tools together to achieve a goal, that's what's called agentic behavior." }
+          ]
+        },
+        {
+          "id": "structured-output",
+          "title": "Structured Output (JSON Mode / Schema)",
+          "summary": "Forcing an LLM to return data in a guaranteed, reliable format.",
+          "whatIs": "Forcing the LLM to return data in a predefined schema (e.g. a Pydantic model) instead of free-form text.",
+          "why": "When an LLM's output needs to go directly into a database or automation (like lead capture), a 'guaranteed format' is required — free text generation can occasionally vary in format.",
+          "how": [
+            "Define exact fields/types with a Pydantic BaseModel",
+            "Call client.beta.chat.completions.parse() with that schema",
+            "The result comes back as a Python object (not a JSON string) — accessible via .field_name"
+          ],
+          "code": "class LeadInfo(BaseModel):\n    name: Optional[str]\n    phone: Optional[str]\n    is_lead: bool\n\nresponse = client.beta.chat.completions.parse(\n    model=\"gpt-4o-mini\", messages=[...], response_format=LeadInfo)\nlead = response.choices[0].message.parsed",
+          "useCases": [
+            "Extracting lead/contact information from chat messages",
+            "Populating a database record directly from an LLM response",
+            "Any pipeline where the next step expects a fixed data shape"
+          ],
+          "qa": [
+            { "q": "What's the biggest benefit of Structured Output?", "a": "Reliability — downstream code (database, automation, APIs) can always expect the SAME format, eliminating the risk of crashes from format mismatches." },
+            { "q": "How does schema-based Structured Output differ from simple 'JSON mode'?", "a": "Simple JSON mode only requires 'return valid JSON' — the structure is up to the LLM. Schema-based output enforces exact fields/types, removing the risk of missing or extra fields." }
+          ]
+        },
+        {
+          "id": "vector-databases",
+          "title": "Vector Databases (ChromaDB)",
+          "summary": "A database purpose-built for storing and searching embeddings at scale.",
+          "whatIs": "A dedicated database built for efficiently storing and searching embeddings — just as PostgreSQL handles normal data, ChromaDB handles 'vectors'.",
+          "why": "A manual NumPy/cosine-similarity approach works fine for small data, but becomes slow with thousands or millions of documents and requires keeping everything in RAM. A vector database provides fast indexing algorithms (like HNSW) and disk persistence.",
+          "how": [
+            "PersistentClient saves data to disk (no need to regenerate embeddings after a server restart)",
+            "collection.add() stores documents + embeddings with unique IDs",
+            "collection.query() returns the top-N most similar chunks in a single call"
+          ],
+          "code": "import chromadb\nclient = chromadb.PersistentClient(path=\"./chroma_data\")\ncollection = client.get_or_create_collection(name=\"knowledge\")\ncollection.add(documents=chunks, ids=ids, embeddings=embeddings)\nresults = collection.query(query_embeddings=[q_emb], n_results=3)",
+          "useCases": [
+            "Production RAG systems with large or growing knowledge bases",
+            "Semantic search over thousands of documents",
+            "Persistent storage of embeddings across server restarts"
+          ],
+          "qa": [
+            { "q": "How does ChromaDB know which embedding model was used?", "a": "It doesn't need to — ChromaDB is model-agnostic and just stores/searches numbers. It's the developer's responsibility to use the SAME model consistently for both storing and searching." },
+            { "q": "When does a vector database become necessary in production?", "a": "Once data scales to thousands or millions of documents — manual similarity calculations become slow and RAM constraints appear. A vector database's indexing delivers millisecond-level search at that scale." }
+          ]
+        },
+        {
+          "id": "guardrails",
+          "title": "Guardrails",
+          "summary": "Keeping an AI system safe, on-topic, and resistant to manipulation.",
+          "whatIs": "Checks and rules placed 'around' an AI system so it stays within its domain, avoids generating harmful content, and resists prompt injection attacks.",
+          "why": "LLMs can be manipulated (e.g. 'ignore your instructions' attacks). Guardrails ensure predictability and safety, following the 'Defense in Depth' principle — multiple layers of protection.",
+          "how": [
+            "Input Guardrails: check for suspicious keywords/patterns before the message ever reaches the LLM",
+            "Prompt-Level Guardrails: explicit security rules written into the system prompt",
+            "Output Guardrails: check the LLM's response before it reaches the user"
+          ],
+          "code": "BLOCKED_KEYWORDS = [\"ignore previous\", \"ignore all instructions\", \"system prompt\"]\ndef check_input_safety(question):\n    q = question.lower()\n    for kw in BLOCKED_KEYWORDS:\n        if kw in q:\n            return False, \"This request cannot be processed.\"\n    return True, None",
+          "useCases": [
+            "Public-facing chatbots that must stay on-topic",
+            "Preventing prompt injection and jailbreak attempts",
+            "Protecting a system prompt from being leaked or overridden"
+          ],
+          "qa": [
+            { "q": "What is Prompt Injection?", "a": "When a user crafts a message designed to make the LLM 'forget' its original instructions and behave differently (e.g. 'ignore previous instructions'). It's a common security attack against LLM applications." },
+            { "q": "What does 'Defense in Depth' mean in the context of guardrails?", "a": "Rather than relying on a single check, security is layered — input checks, prompt instructions, and output checks — so that if one layer is bypassed, another can still catch the issue." }
+          ]
+        },
+        {
+          "id": "rag-evaluation",
+          "title": "RAG Evaluation",
+          "summary": "Systematically measuring whether a RAG system actually works well.",
+          "whatIs": "Systematically verifying that a RAG system is working reliably — rather than manually trying a couple of questions and assuming it's fine.",
+          "why": "'It seems fine' isn't good enough for production. Evaluation shows whether both the Retrieval and Generation steps are working correctly, and whether changes (to prompts or data) are improving or degrading the system.",
+          "how": [
+            "Retrieval evaluation: Precision (of what was retrieved, how much was actually relevant) and Recall (of what was relevant, how much was retrieved)",
+            "Generation evaluation: Faithfulness (does the answer match the context) and hallucination detection",
+            "A practical approach: build a 'test set' (questions + expected keywords) and check the system's answers against those keywords"
+          ],
+          "code": "test_cases = [{\"question\": \"What is his tech stack?\", \"expected_keywords\": [\"Django\", \"FastAPI\"]}]\nfor test in test_cases:\n    answer = ask(test[\"question\"])\n    found = sum(1 for kw in test[\"expected_keywords\"] if kw.lower() in answer.lower())\n    score = found / len(test[\"expected_keywords\"])",
+          "useCases": [
+            "Regression testing a RAG system after changing prompts or knowledge base",
+            "Comparing retrieval strategies (e.g. top-3 vs top-5)",
+            "Building confidence in a system before deploying it to production"
+          ],
+          "qa": [
+            { "q": "What's the difference between Precision and Recall?", "a": "Precision = of the chunks retrieved, how many were actually relevant. Recall = of all the relevant chunks that existed, how many were retrieved. There's typically a trade-off between the two." },
+            { "q": "What tools/approaches are used for RAG evaluation in production?", "a": "The RAGAS framework (automated Precision/Recall/Faithfulness metrics), LLM-as-Judge (a second LLM rates the response), and Human Evaluation (most reliable, but slow and costly)." }
+          ]
+        }
+      ]
+    }
+  ]
+}
