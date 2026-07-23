@@ -46,7 +46,15 @@ cp .env.example .env            # then fill in your keys
 python bot.py
 ```
 
-Open **http://localhost:7860/client**, click **Connect**, allow the mic, and start talking. The bot greets you first.
+**Two ways to run:**
+
+```bash
+python server.py     # branded UI (recommended) -> http://localhost:7860
+# or
+python bot.py        # plain Pipecat prebuilt UI -> http://localhost:7860/client
+```
+
+`server.py` serves a custom, Abdur-Rehman-Afzal-branded page ([client/index.html](client/index.html)) and reuses the exact pipeline in `bot.py`. Open the URL, click **Start talking**, allow the mic, and just speak — Aria greets you first and you can interrupt her any time.
 
 > First run downloads the Silero VAD model (~20s). WebRTC needs `http://localhost` or HTTPS — browsers block mic access on plain `http://` remote hosts, which matters for VPS deploy (M5 puts it behind your existing Traefik TLS).
 

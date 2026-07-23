@@ -8,6 +8,9 @@
 # Tip: once it runs cleanly, pin the resolved version (pip freeze) so the API
 # can't drift out from under you: e.g. pipecat-ai[...]==<version>
 pipecat-ai[deepgram,openai,cartesia,silero,webrtc]
-# Prebuilt browser client served at /client (the "Connect + talk" UI).
+# Prebuilt browser client served at /client (used by bot.py's plain runner).
 pipecat-ai-prebuilt
+# server.py serves the branded custom UI + /api/offer (imports these directly).
+fastapi
+uvicorn
 python-dotenv>=1.0.0

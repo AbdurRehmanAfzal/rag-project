@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Talk to Abdur's AI Concierge</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card: #131a2b;
+      --line: #243049;
+      --text: #e8edf7;
+      --muted: #93a0bd;
+      --accent: #6366f1;
+      --accent-2: #22d3ee;
+      --good: #34d399;
+      --bad: #f87171;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 50% -10%, #1a2340 0%, var(--bg) 55%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 28px 26px 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .avatar {
+      width: 46px; height: 46px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid; place-items: center;
+      font-weight: 700; font-size: 18px; color: #0b0f19;
+    }
+    .brand h1 { font-size: 17px; margin: 0; line-height: 1.2; }
+    .brand p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+
+    .headline { margin: 22px 0 4px; font-size: 21px; font-weight: 650; }
+    .sub { margin: 0 0 20px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+
+    .status {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--muted);
+      background: #0e1524; border: 1px solid var(--line);
+      padding: 6px 12px; border-radius: 999px; margin-bottom: 18px;
+    }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
+    .dot.live { background: var(--good); box-shadow: 0 0 0 4px rgba(52,211,153,.15); animation: pulse 1.6s infinite; }
+    .dot.connecting { background: var(--accent-2); animation: pulse 1s infinite; }
+    .dot.error { background: var(--bad); }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+
+    .btn {
+      width: 100%;
+      border: none; border-radius: 14px;
+      padding: 15px 18px;
+      font-size: 16px; font-weight: 650;
+      cursor: pointer; color: #fff;
+      background: linear-gradient(135deg, var(--accent), #4f46e5);
+      transition: transform .05s ease, filter .15s ease;
+    }
+    .btn:hover { filter: brightness(1.08); }
+    .btn:active { transform: translateY(1px); }
+    .btn.end { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+    .btn:disabled { opacity: .55; cursor: default; }
+
+    .transcript {
+      margin-top: 20px;
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+      max-height: 240px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .transcript:empty { display: none; }
+    .msg { font-size: 14px; line-height: 1.45; padding: 9px 12px; border-radius: 12px; max-width: 90%; }
+    .msg.bot { background: #1b2540; align-self: flex-start; border-top-left-radius: 4px; }
+    .msg.user { background: #22304e; align-self: flex-end; border-top-right-radius: 4px; }
+    .msg .who { display: block; font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+
+    .foot { margin-top: 18px; font-size: 12px; color: var(--muted); text-align: center; line-height: 1.5; }
+    a { color: var(--accent-2); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand">
+      <div class="avatar">AR</div>
+      <div>
+        <h1>Abdur Rehman Afzal</h1>
+        <p>AI Engineer &middot; Voice Concierge Demo</p>
+      </div>
+    </div>
+
+    <h2 class="headline">🎙️ Talk to my AI concierge</h2>
+    <p class="sub">
+      Meet <strong>Aria</strong>, a real-time voice assistant I built to answer questions about a
+      property search. Click below, allow your microphone, and just start speaking, you can
+      interrupt her any time, like a real call.
+    </p>
+
+    <div class="status">
+      <span class="dot" id="dot"></span>
+      <span id="statusText">Ready to connect</span>
+    </div>
+
+    <button class="btn" id="callBtn">Start talking</button>
+
+    <div class="transcript" id="transcript"></div>
+
+    <p class="foot">
+      Best in Chrome. This is a live demo capped at 3 minutes to keep it free to run.<br />
+      Built with Pipecat &middot; Deepgram &middot; OpenAI &middot; Cartesia.
+    </p>
+  </main>
+
+  <!-- Hidden element that plays Aria's voice -->
+  <audio id="botAudio" autoplay></audio>
+
+  <script type="module">
+    import { PipecatClient } from "https://esm.sh/@pipecat-ai/client-js";
+    import { SmallWebRTCTransport } from "https://esm.sh/@pipecat-ai/small-webrtc-transport";
+
+    const callBtn = document.getElementById("callBtn");
+    const dot = document.getElementById("dot");
+    const statusText = document.getElementById("statusText");
+    const transcript = document.getElementById("transcript");
+    const botAudio = document.getElementById("botAudio");
+
+    let client = null;
+    let connected = false;
+
+    function setStatus(state, text) {
+      dot.className = "dot" + (state ? " " + state : "");
+      statusText.textContent = text;
+    }
+
+    // Transcript state: one bubble per speaking turn, updated in place as text
+    // streams in (rather than a new bubble per chunk).
+    let botBody = null;      // <span> for Aria's current turn
+    let botAcc = "";         // accumulated text for Aria's current turn
+    let lastUserText = "";   // dedupe repeated "final" user transcripts
+
+    function newBubble(who) {
+      const el = document.createElement("div");
+      el.className = "msg " + (who === "You" ? "user" : "bot");
+      const who_ = document.createElement("span");
+      who_.className = "who";
+      who_.textContent = who;
+      const body = document.createElement("span");
+      el.append(who_, body);
+      transcript.appendChild(el);
+      transcript.scrollTop = transcript.scrollHeight;
+      return body;
+    }
+
+    function addUser(text) {
+      const t = (text || "").trim();
+      if (!t || t === lastUserText) return;   // ignore blanks / repeated finals
+      lastUserText = t;
+      newBubble("You").textContent = t;
+      botBody = null;                          // next bot output starts fresh
+    }
+
+    function addBot(text) {
+      const t = (text || "").trim();
+      if (!t) return;
+      if (!botBody) { botBody = newBubble("Aria"); botAcc = ""; }
+      if (botAcc.includes(t)) return;          // already shown this turn -> skip
+      if (botAcc && t.startsWith(botAcc)) {
+        botAcc = t;                            // cumulative growth -> replace
+      } else {
+        botAcc = botAcc ? botAcc + " " + t : t; // new sentence -> append
+      }
+      botBody.textContent = botAcc;
+      transcript.scrollTop = transcript.scrollHeight;
+    }
+
+    async function startCall() {
+      setStatus("connecting", "Connecting…");
+      callBtn.disabled = true;
+
+      const transport = new SmallWebRTCTransport({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      });
+
+      client = new PipecatClient({
+        transport,
+        enableMic: true,
+        enableCam: false,
+        callbacks: {
+          onConnected: () => {
+            connected = true;
+            setStatus("live", "Live · speak now");
+            callBtn.disabled = false;
+            callBtn.textContent = "End call";
+            callBtn.classList.add("end");
+          },
+          onDisconnected: () => endCallUI(),
+          onBotReady: () => setStatus("live", "Live · speak now"),
+          // Play Aria's audio track
+          onTrackStarted: (track, participant) => {
+            if (participant && participant.local) return;
+            if (track.kind === "audio") {
+              botAudio.srcObject = new MediaStream([track]);
+            }
+          },
+          // Each new bot turn starts a fresh bubble.
+          onBotStartedSpeaking: () => { botBody = null; },
+          // User's finalized speech.
+          onUserTranscript: (data) => {
+            if (data && data.final) addUser(data.text);
+          },
+          // Aria's output (streams in; onBotOutput is the 1.5.0+ callback).
+          onBotOutput: (data) => addBot(data && data.text),
+        },
+      });
+
+      try {
+        await client.connect({ webrtcUrl: "/api/offer" });
+      } catch (err) {
+        console.error(err);
+        setStatus("error", "Connection failed — check the terminal / console");
+        callBtn.disabled = false;
+        callBtn.textContent = "Try again";
+      }
+    }
+
+    async function endCall() {
+      try { if (client) await client.disconnect(); } catch (e) { console.error(e); }
+      endCallUI();
+    }
+
+    function endCallUI() {
+      connected = false;
+      client = null;
+      botAudio.srcObject = null;
+      setStatus("", "Call ended");
+      callBtn.disabled = false;
+      callBtn.textContent = "Start talking";
+      callBtn.classList.remove("end");
+    }
+
+    callBtn.addEventListener("click", () => (connected ? endCall() : startCall()));
+  </script>
+</body>
+</html>
