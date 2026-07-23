@@ -28,12 +28,15 @@ from pipecat.processors.aggregators.llm_response_universal import (
     LLMContextAggregatorPair,
     LLMUserAggregatorParams,
 )
+from pipecat.adapters.schemas.function_schema import FunctionSchema
 from pipecat.runner.types import RunnerArguments
 from pipecat.runner.utils import create_transport
 from pipecat.services.cartesia.tts import CartesiaTTSService
 from pipecat.services.deepgram.stt import DeepgramSTTService
 from pipecat.services.openai.llm import OpenAILLMService
 from pipecat.transports.base_transport import BaseTransport, TransportParams
+
+import knowledge
 
 load_dotenv(override=True)
 
@@ -59,6 +62,23 @@ You are speaking OUT LOUD on a live call, so:
 Open by briefly introducing yourself and asking how you can help with their property search.
 """
 
+# Portfolio persona: the AI voice of Abdur himself, grounded in his real
+# knowledge base via the search_portfolio tool (KB_SOURCE=portfolio, default).
+PORTFOLIO_PROMPT = """You are the AI voice of Abdur Rehman Afzal, an AI Engineer with 7+ years of experience. You speak in the first person AS Abdur, warmly and professionally, to visitors and recruiters exploring his portfolio by voice.
+
+You are on a live voice call, so:
+- Keep replies short and conversational: 1 to 3 sentences, unless asked for detail.
+- ALWAYS call the search_portfolio tool to look things up before answering any question about your experience, projects, skills, education, certifications, or contact details. Base your answer only on what it returns.
+- Never invent employers, projects, dates, numbers, or links. If the knowledge base doesn't cover something, say so honestly and point them to your email or LinkedIn.
+- Speak naturally: no markdown, no bullet lists, no emojis, and never use em dashes.
+- Use proper apostrophes in contractions (I've, I'm, don't, it's).
+
+Open by briefly introducing yourself as Abdur, an AI Engineer, and inviting them to ask about your work, projects, or experience.
+"""
+
+# Persona per knowledge source. Falls back to the concierge prompt.
+PROMPTS = {"portfolio": PORTFOLIO_PROMPT}
+
 
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     logger.info("Starting voice property concierge")
@@ -73,15 +93,46 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         ),
     )
 
+    # Load the active knowledge pack (portfolio by default) and pick its persona.
+    kb = knowledge.get_kb()
+    system_prompt = PROMPTS.get(kb.source, SYSTEM_PROMPT)
+
     llm = OpenAILLMService(
         api_key=os.getenv("OPENAI_API_KEY"),
         settings=OpenAILLMService.Settings(
             model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-            system_instruction=SYSTEM_PROMPT,
+            system_instruction=system_prompt,
         ),
     )
 
-    context = LLMContext()
+    # RAG as a tool: the model calls search_portfolio, we return the top-k
+    # chunks from the knowledge base, and it grounds its spoken reply on them.
+    search_tool = FunctionSchema(
+        name="search_portfolio",
+        description=(
+            "Search Abdur Rehman Afzal's knowledge base for facts about his "
+            "experience, employers, projects, skills, education, certifications, "
+            "and contact details. Call this before answering questions about Abdur."
+        ),
+        properties={
+            "query": {
+                "type": "string",
+                "description": "The user's question or key search terms.",
+            }
+        },
+        required=["query"],
+    )
+
+    async def handle_search(params):
+        query = params.arguments.get("query", "")
+        chunks = kb.retrieve(query, k=4)
+        info = "\n\n".join(chunks) if chunks else "No matching information found."
+        logger.info(f"search_portfolio('{query}') -> {len(chunks)} chunks")
+        await params.result_callback({"information": info})
+
+    llm.register_function("search_portfolio", handle_search)
+
+    context = LLMContext(tools=[search_tool])
     user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
         context,
         user_params=LLMUserAggregatorParams(vad_analyzer=SileroVADAnalyzer()),

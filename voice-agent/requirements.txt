@@ -13,4 +13,7 @@ pipecat-ai-prebuilt
 # server.py serves the branded custom UI + /api/offer (imports these directly).
 fastapi
 uvicorn
+# Retrieval for the knowledge packs (same model as the main RAG project).
+sentence-transformers>=2.2.0
+numpy>=1.24.0
 python-dotenv>=1.0.0

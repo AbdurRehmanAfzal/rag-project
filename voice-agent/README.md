@@ -12,8 +12,8 @@ Built as a **cascaded pipeline** (deliberately, for engineering depth): each sta
 
 ## Status: Milestone 1
 
-- [x] **M1 — Talk to it.** Working end-to-end voice conversation, on-domain (real-estate concierge persona), with interruption handling. ← *you are here*
-- [ ] M2 — RAG over real listings (reuse the main project's retrieval).
+- [x] **M1 — Talk to it.** Working end-to-end voice conversation, interruption handling, branded UI.
+- [x] **M2 — RAG.** Grounded answers via a `search_portfolio` tool over an embedded knowledge pack. ← *you are here*
 - [ ] M3 — Tool calls: `book_viewing`, `capture_lead`.
 - [ ] M4 — Barge-in polish, latency/cost dashboard, eval metrics table.
 - [ ] M5 — "🎙️ Talk to my AI" button embedded in the portfolio site.
@@ -57,6 +57,15 @@ python bot.py        # plain Pipecat prebuilt UI -> http://localhost:7860/client
 `server.py` serves a custom, Abdur-Rehman-Afzal-branded page ([client/index.html](client/index.html)) and reuses the exact pipeline in `bot.py`. Open the URL, click **Start talking**, allow the mic, and just speak — Aria greets you first and you can interrupt her any time.
 
 > First run downloads the Silero VAD model (~20s). WebRTC needs `http://localhost` or HTTPS — browsers block mic access on plain `http://` remote hosts, which matters for VPS deploy (M5 puts it behind your existing Traefik TLS).
+
+## Knowledge (RAG)
+
+The agent answers from a **knowledge pack**, selected by `KB_SOURCE`:
+
+- `portfolio` (default) — Abdur's `../knowledge_base.txt`; the agent speaks as Abdur and answers about his experience, projects, and skills. Recruiters can *talk to the CV*.
+- `b1` (later) — a curated property-listings pack for a real-estate concierge.
+
+Retrieval is exposed to the LLM as a **tool** (`search_portfolio`): the model calls it, [knowledge.py](knowledge.py) embeds the query (`all-MiniLM-L6-v2`, same as the main project) and returns the top-k chunks by cosine similarity, and the model grounds its spoken reply on them. This is real on-demand RAG + agentic tool use, and it scales to larger packs without stuffing everything into the prompt.
 
 ## How it works
 
