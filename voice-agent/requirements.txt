@@ -1,0 +1,13 @@
+# Voice Property Concierge - Milestone 1 dependencies
+#
+# Pipecat with the exact service extras this bot uses:
+#   deepgram -> STT, openai -> LLM, cartesia -> TTS,
+#   silero   -> voice activity detection (turn-taking),
+#   webrtc   -> browser transport + prebuilt client at /client (no Daily account needed)
+#
+# Tip: once it runs cleanly, pin the resolved version (pip freeze) so the API
+# can't drift out from under you: e.g. pipecat-ai[...]==<version>
+pipecat-ai[deepgram,openai,cartesia,silero,webrtc]
+# Prebuilt browser client served at /client (the "Connect + talk" UI).
+pipecat-ai-prebuilt
+python-dotenv>=1.0.0
