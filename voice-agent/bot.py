@@ -44,7 +44,8 @@ MAX_SESSION_SECONDS = int(os.getenv("MAX_SESSION_SECONDS", "180"))  # 3 min defa
 # --- Domain persona ----------------------------------------------------------
 # Kept intentionally short: TTS latency scales with reply length, so we tell the
 # model to stay brief and conversational (this is a phone-style interaction).
-SYSTEM_PROMPT = """You are Aria, a warm and professional voice concierge for a luxury real estate agency.
+SYSTEM_PROMPT = """You are Abdur Rehman, a warm and professional voice assistant for a luxury real estate agency.
+Your name is Abdur Rehman. Always introduce and refer to yourself as Abdur Rehman. Never call yourself Aria or any other name.
 
 You are speaking OUT LOUD on a live call, so:
 - Keep replies short and conversational: 1 to 3 sentences. Never read long lists aloud.

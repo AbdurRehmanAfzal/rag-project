@@ -3,128 +3,178 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Talk to Abdur's AI Concierge</title>
+  <title>Abdur Rehman · Voice Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0b0f19;
-      --card: #131a2b;
-      --line: #243049;
-      --text: #e8edf7;
-      --muted: #93a0bd;
-      --accent: #6366f1;
-      --accent-2: #22d3ee;
-      --good: #34d399;
-      --bad: #f87171;
+      --ink: #0b0b10;
+      --text: #f3f0ea;
+      --muted: #8a8798;
+      --iris: #8b7cf6;
+      --iris-2: #b7adf9;
+      --line: rgba(243, 240, 234, 0.08);
     }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; height: 100%; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: radial-gradient(1200px 600px at 50% -10%, #1a2340 0%, var(--bg) 55%);
+      background: var(--ink);
+      background-image: radial-gradient(680px 460px at 50% -8%, rgba(139,124,246,.14), transparent 62%);
       color: var(--text);
+      font-family: "Inter", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100%;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 40px 24px;
+      text-align: center;
     }
-    .card {
-      width: 100%;
-      max-width: 480px;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 28px 26px 24px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+
+    .kicker {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 56px;
     }
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .avatar {
-      width: 46px; height: 46px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    .kicker .mono {
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 1px solid rgba(139,124,246,.5);
       display: grid; place-items: center;
-      font-weight: 700; font-size: 18px; color: #0b0f19;
+      font-family: "Space Grotesk", sans-serif; font-size: 11px; letter-spacing: 0;
+      color: var(--iris-2);
     }
-    .brand h1 { font-size: 17px; margin: 0; line-height: 1.2; }
-    .brand p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
 
-    .headline { margin: 22px 0 4px; font-size: 21px; font-weight: 650; }
-    .sub { margin: 0 0 20px; color: var(--muted); font-size: 14px; line-height: 1.5; }
-
-    .status {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-size: 13px; color: var(--muted);
-      background: #0e1524; border: 1px solid var(--line);
-      padding: 6px 12px; border-radius: 999px; margin-bottom: 18px;
+    /* Avatar */
+    .avatar-wrap { position: relative; width: 140px; height: 140px; margin-bottom: 30px; }
+    .avatar {
+      position: relative; z-index: 1;
+      width: 140px; height: 140px; border-radius: 50%;
+      object-fit: cover; object-position: center 20%;
+      border: 2px solid rgba(139,124,246,.5);
+      box-shadow: 0 0 50px rgba(139,124,246,.32);
+      transition: box-shadow .5s ease, transform .5s ease, border-color .5s ease;
     }
-    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
-    .dot.live { background: var(--good); box-shadow: 0 0 0 4px rgba(52,211,153,.15); animation: pulse 1.6s infinite; }
-    .dot.connecting { background: var(--accent-2); animation: pulse 1s infinite; }
-    .dot.error { background: var(--bad); }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+    /* Soft rings that ripple outward while the call is live */
+    .ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 1px solid rgba(139,124,246,.4); opacity: 0; pointer-events: none;
+    }
+    body[data-state="live"] .avatar {
+      transform: scale(1.02);
+      border-color: var(--iris);
+      box-shadow: 0 0 90px rgba(139,124,246,.55);
+    }
+    body[data-state="live"] .ring { animation: ripple 2.8s ease-out infinite; }
+    body[data-state="live"] .ring.r2 { animation-delay: 1.4s; }
+    body[data-state="connecting"] .avatar { animation: breathe 1.05s ease-in-out infinite; }
+    @keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+    @keyframes ripple {
+      0% { opacity: .5; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.5); }
+    }
+
+    h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 500; font-size: 40px; letter-spacing: -.01em; margin-bottom: 8px;
+    }
+    .tagline { color: var(--muted); font-size: 15px; margin-bottom: 30px; }
+
+    .status { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); margin-bottom: 22px; min-height: 16px; }
+    .status .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--muted); margin-right: 7px; vertical-align: middle; }
+    .status .dot.live { background: #34d399; }
+    .status .dot.connecting { background: var(--iris-2); }
+    .status .dot.error { background: #f87171; }
 
     .btn {
-      width: 100%;
-      border: none; border-radius: 14px;
-      padding: 15px 18px;
-      font-size: 16px; font-weight: 650;
-      cursor: pointer; color: #fff;
-      background: linear-gradient(135deg, var(--accent), #4f46e5);
-      transition: transform .05s ease, filter .15s ease;
+      font-family: "Inter", sans-serif; font-size: 14.5px; font-weight: 500;
+      color: var(--text); letter-spacing: .02em;
+      background: transparent;
+      border: 1px solid rgba(139,124,246,.55);
+      border-radius: 999px; padding: 13px 34px; cursor: pointer;
+      transition: background .2s ease, border-color .2s ease, opacity .2s ease;
     }
-    .btn:hover { filter: brightness(1.08); }
-    .btn:active { transform: translateY(1px); }
-    .btn.end { background: linear-gradient(135deg, #ef4444, #b91c1c); }
-    .btn:disabled { opacity: .55; cursor: default; }
+    .btn:hover { background: rgba(139,124,246,.12); border-color: var(--iris); }
+    .btn.end { border-color: rgba(243,240,234,.25); color: var(--muted); }
+    .btn.end:hover { background: rgba(243,240,234,.06); }
+    .btn:disabled { opacity: .45; cursor: default; }
 
     .transcript {
-      margin-top: 20px;
-      border-top: 1px solid var(--line);
-      padding-top: 16px;
-      max-height: 240px; overflow-y: auto;
-      display: flex; flex-direction: column; gap: 10px;
+      margin-top: 40px; width: 100%; max-width: 480px;
+      max-height: 46vh; min-height: 120px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 14px; text-align: left;
+      padding: 2px;
     }
     .transcript:empty { display: none; }
-    .msg { font-size: 14px; line-height: 1.45; padding: 9px 12px; border-radius: 12px; max-width: 90%; }
-    .msg.bot { background: #1b2540; align-self: flex-start; border-top-left-radius: 4px; }
-    .msg.user { background: #22304e; align-self: flex-end; border-top-right-radius: 4px; }
-    .msg .who { display: block; font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+    .transcript::-webkit-scrollbar { width: 4px; }
+    .transcript::-webkit-scrollbar-thumb { background: rgba(139,124,246,.25); border-radius: 4px; }
 
-    .foot { margin-top: 18px; font-size: 12px; color: var(--muted); text-align: center; line-height: 1.5; }
-    a { color: var(--accent-2); text-decoration: none; }
+    .msg {
+      display: flex; flex-direction: column; gap: 5px; max-width: 84%;
+      animation: msgIn .38s cubic-bezier(.2,.75,.3,1) both;
+    }
+    .msg.bot { align-self: flex-start; align-items: flex-start; }
+    .msg.user { align-self: flex-end; align-items: flex-end; }
+
+    .msg .who {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--iris-2); padding: 0 4px;
+    }
+    .msg.user .who { color: var(--muted); }
+
+    .msg > span:last-child {
+      font-size: 13.5px; line-height: 1.5;
+      padding: 10px 14px; border-radius: 15px;
+      color: rgba(243,240,234,.9);
+      background: rgba(243,240,234,.045);
+      border: 1px solid var(--line);
+      transition: border-color .3s ease;
+    }
+    .msg.bot > span:last-child { border-top-left-radius: 5px; }
+    .msg.user > span:last-child {
+      background: rgba(139,124,246,.13);
+      border-color: rgba(139,124,246,.3);
+      border-top-right-radius: 5px;
+    }
+    /* Aria's bubble glows softly while it's the active, streaming turn */
+    body[data-state="live"] .msg.bot:last-child > span:last-child {
+      border-color: rgba(139,124,246,.3);
+      animation: bubbleGlow 2.4s ease-in-out infinite;
+    }
+
+    @keyframes msgIn { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
+    @keyframes bubbleGlow {
+      0%, 100% { box-shadow: 0 0 0 rgba(139,124,246,0); }
+      50% { box-shadow: 0 0 18px rgba(139,124,246,.18); }
+    }
+
+    .foot { margin-top: 44px; font-size: 11px; letter-spacing: .04em; color: rgba(138,135,152,.7); }
   </style>
 </head>
-<body>
-  <main class="card">
-    <div class="brand">
-      <div class="avatar">AR</div>
-      <div>
-        <h1>Abdur Rehman Afzal</h1>
-        <p>AI Engineer &middot; Voice Concierge Demo</p>
-      </div>
-    </div>
+<body data-state="idle">
+  <div class="kicker">
+    <span>AI Engineer · Voice Assistant</span>
+  </div>
 
-    <h2 class="headline">🎙️ Talk to my AI concierge</h2>
-    <p class="sub">
-      Meet <strong>Aria</strong>, a real-time voice assistant I built to answer questions about a
-      property search. Click below, allow your microphone, and just start speaking, you can
-      interrupt her any time, like a real call.
-    </p>
+  <div class="avatar-wrap">
+    <span class="ring"></span>
+    <span class="ring r2"></span>
+    <img class="avatar" src="abdur.png" alt="Abdur Rehman Afzal" />
+  </div>
 
-    <div class="status">
-      <span class="dot" id="dot"></span>
-      <span id="statusText">Ready to connect</span>
-    </div>
+  <h1>Abdur Rehman</h1>
+  <p class="tagline">Voice assistant · ask about a property, just speak.</p>
 
-    <button class="btn" id="callBtn">Start talking</button>
+  <p class="status"><span class="dot" id="dot"></span><span id="statusText">Ready</span></p>
 
-    <div class="transcript" id="transcript"></div>
+  <button class="btn" id="callBtn">Start talking</button>
 
-    <p class="foot">
-      Best in Chrome. This is a live demo capped at 3 minutes to keep it free to run.<br />
-      Built with Pipecat &middot; Deepgram &middot; OpenAI &middot; Cartesia.
-    </p>
-  </main>
+  <div class="transcript" id="transcript"></div>
 
-  <!-- Hidden element that plays Aria's voice -->
+  <p class="foot">3-minute live demo · Pipecat · Deepgram · OpenAI · Cartesia</p>
+
   <audio id="botAudio" autoplay></audio>
 
   <script type="module">
@@ -143,13 +193,15 @@
     function setStatus(state, text) {
       dot.className = "dot" + (state ? " " + state : "");
       statusText.textContent = text;
+      document.body.dataset.state = state || "idle";
     }
 
-    // Transcript state: one bubble per speaking turn, updated in place as text
-    // streams in (rather than a new bubble per chunk).
-    let botBody = null;      // <span> for Aria's current turn
-    let botAcc = "";         // accumulated text for Aria's current turn
-    let lastUserText = "";   // dedupe repeated "final" user transcripts
+    // Transcript state: one bubble per speaking turn, updated in place.
+    // Deepgram may emit several "final" segments for a single spoken turn
+    // (short pauses), so we accumulate them into the same bubble until the
+    // other speaker takes over.
+    let botBody = null, botAcc = "";
+    let userBody = null, userAcc = "";
 
     function newBubble(who) {
       const el = document.createElement("div");
@@ -166,28 +218,30 @@
 
     function addUser(text) {
       const t = (text || "").trim();
-      if (!t || t === lastUserText) return;   // ignore blanks / repeated finals
-      lastUserText = t;
-      newBubble("You").textContent = t;
-      botBody = null;                          // next bot output starts fresh
+      if (!t) return;
+      if (!userBody) { userBody = newBubble("You"); userAcc = ""; }
+      if (userAcc.includes(t)) return;                    // ignore repeats
+      if (userAcc && t.startsWith(userAcc)) { userAcc = t; }  // cumulative
+      else { userAcc = userAcc ? userAcc + " " + t : t; }     // new segment
+      userBody.textContent = userAcc;
+      botBody = null;                                     // Aria's reply = new bubble
+      transcript.scrollTop = transcript.scrollHeight;
     }
 
     function addBot(text) {
       const t = (text || "").trim();
       if (!t) return;
-      if (!botBody) { botBody = newBubble("Aria"); botAcc = ""; }
-      if (botAcc.includes(t)) return;          // already shown this turn -> skip
-      if (botAcc && t.startsWith(botAcc)) {
-        botAcc = t;                            // cumulative growth -> replace
-      } else {
-        botAcc = botAcc ? botAcc + " " + t : t; // new sentence -> append
-      }
+      if (!botBody) { botBody = newBubble("Abdur"); botAcc = ""; }
+      if (botAcc.includes(t)) return;
+      if (botAcc && t.startsWith(botAcc)) { botAcc = t; }
+      else { botAcc = botAcc ? botAcc + " " + t : t; }
       botBody.textContent = botAcc;
+      userBody = null;                                    // your next turn = new bubble
       transcript.scrollTop = transcript.scrollHeight;
     }
 
     async function startCall() {
-      setStatus("connecting", "Connecting…");
+      setStatus("connecting", "Connecting");
       callBtn.disabled = true;
 
       const transport = new SmallWebRTCTransport({
@@ -208,20 +262,12 @@
           },
           onDisconnected: () => endCallUI(),
           onBotReady: () => setStatus("live", "Live · speak now"),
-          // Play Aria's audio track
           onTrackStarted: (track, participant) => {
             if (participant && participant.local) return;
-            if (track.kind === "audio") {
-              botAudio.srcObject = new MediaStream([track]);
-            }
+            if (track.kind === "audio") botAudio.srcObject = new MediaStream([track]);
           },
-          // Each new bot turn starts a fresh bubble.
-          onBotStartedSpeaking: () => { botBody = null; },
-          // User's finalized speech.
-          onUserTranscript: (data) => {
-            if (data && data.final) addUser(data.text);
-          },
-          // Aria's output (streams in; onBotOutput is the 1.5.0+ callback).
+          onBotStartedSpeaking: () => { botBody = null; userBody = null; },
+          onUserTranscript: (data) => { if (data && data.final) addUser(data.text); },
           onBotOutput: (data) => addBot(data && data.text),
         },
       });
@@ -230,7 +276,7 @@
         await client.connect({ webrtcUrl: "/api/offer" });
       } catch (err) {
         console.error(err);
-        setStatus("error", "Connection failed — check the terminal / console");
+        setStatus("error", "Connection failed");
         callBtn.disabled = false;
         callBtn.textContent = "Try again";
       }
