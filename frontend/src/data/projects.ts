@@ -42,7 +42,9 @@ export const projectsData: Project[] = [
     description:
       "Voice channel for Mojeeb Agent, a multi-tenant, white-labelled AI agent platform for the Saudi market. A hotel guest presses one button (800) on the room phone and talks to an AI concierge through the hotel's own PBX, with no telecom carrier, new number or SIM. I built the LiveKit SIP voice agent (Deepgram speech-to-text and text-to-speech, Groq LLM, Silero VAD and turn detection) and integrated it with a Yeastar PBX over a peer SIP trunk: the agent knows the caller's room automatically, transfers the call to reception via SIP REFER in about 0.6 s, and handles PBX-originated wake-up calls where the agent speaks within 1.3 s. Validated with G.722 HD audio and DTMF, latency across 20 test calls (about 1 s to the first word), and concurrent calls; wrote the technical report, hotel-IT runbook and CTO/CEO briefs, and planned the 3CX PBX extension.",
     technologies: ["Python 3.12", "LiveKit Agents", "LiveKit SIP", "Deepgram STT/TTS", "Groq LLM", "Silero VAD", "SIP / VoIP", "Yeastar PBX", "3CX", "G.722"],
-    links: [],
+    links: [
+      { label: "Website", url: "https://www.mojeebai.com" },
+    ],
     screenshots: [],
   },
   {
@@ -196,6 +198,19 @@ export const projectsData: Project[] = [
       "A telecom network configuration auditing system using Python, PostgreSQL, Apache Kafka, pandas, and Jupyter Notebooks. Automates Golden Parameter List auditing across Ericsson and Huawei 4G and 3G networks, reducing manual audit time by 80%.",
     technologies: ["Python", "PostgreSQL", "Apache Kafka", "pandas", "Jupyter"],
     links: [],
+    screenshots: [],
+  },
+  {
+    id: "16",
+    category: "RAG / AI Search (In Development)",
+    title: "Nightlife.net AI Search Assistant (In Development)",
+    thumbnail: IMG.social,
+    description:
+      "Currently in development: an AI search assistant for nightlife.net, a US nightlife and entertainment portal and business directory (nightclubs, bars, restaurants, hotels, concerts and events). Instead of clicking filters, users ask in plain language, for example \"a rooftop bar in Miami with live Latin music this Saturday\", and get grounded answers on the site's own pages. Designed as a separate FastAPI service that never modifies the existing product: hybrid retrieval with pgvector semantic search plus Postgres trigram keyword search, hard SQL filters for city, date and category extracted from the query, GPT-4o-mini answers grounded only in retrieved listings, Redis caching, a nightly sync job that re-embeds the catalogue from the existing GraphQL/PostgreSQL data into its own index table, and query and gap logging for the content team.",
+    technologies: ["FastAPI", "Python", "OpenAI GPT-4o-mini", "pgvector", "PostgreSQL (pg_trgm)", "Hybrid Search", "Redis", "GraphQL", "Next.js"],
+    links: [
+      { label: "Client Site", url: "https://nightlife.net" },
+    ],
     screenshots: [],
   },
 ];
