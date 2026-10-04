@@ -24,6 +24,17 @@ const IMG = {
 
 export const projectsData: Project[] = [
   {
+    id: "13",
+    category: "Agentic AI / Vision-Language Models",
+    title: "AI Annotation: VLM-Powered Dashcam Safety Event Pipeline",
+    thumbnail: IMG.car,
+    description:
+      "A production AI annotation service for a fleet-safety telematics platform that automatically reviews dashcam safety events (crashes, hard braking, seat-belt violations, road- and driver-facing camera obstruction). Events arrive over AWS SQS and are routed to per-event LangGraph workflows that combine Triton-served computer vision models with multi-step Vision-Language Model (VLM) reasoning via OpenRouter, then apply Statsig-driven dynamic thresholds and false-positive rejection logic to produce structured decision labels. Shipped as a containerised Python 3.12 service on Kubernetes across US, EU, and Canada regions with ArgoCD GitOps, Terraform/Atlantis infrastructure, Datadog observability, and fully automated GitHub Actions CI/CD with semantic-release versioning.",
+    technologies: ["Python 3.12", "LangGraph", "Vision-Language Models", "OpenRouter", "NVIDIA Triton", "AWS SQS", "Snowflake", "Statsig", "Docker", "Kubernetes", "ArgoCD", "Terraform", "Datadog", "GitHub Actions"],
+    links: [],
+    screenshots: [],
+  },
+  {
     id: "1",
     category: "RAG / Conversational AI",
     title: "B1 Chatbot: AI Real Estate Assistant",
