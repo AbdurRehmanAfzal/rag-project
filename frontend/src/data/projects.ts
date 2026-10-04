@@ -35,6 +35,28 @@ export const projectsData: Project[] = [
     screenshots: [],
   },
   {
+    id: "14",
+    category: "Voice AI / Telephony",
+    title: "Mojeeb Agent: AI Voice Concierge on Hotel Phone Systems",
+    thumbnail: IMG.robot,
+    description:
+      "Voice channel for Mojeeb Agent, a multi-tenant, white-labelled AI agent platform for the Saudi market. A hotel guest presses one button (800) on the room phone and talks to an AI concierge through the hotel's own PBX, with no telecom carrier, new number or SIM. I built the LiveKit SIP voice agent (Deepgram speech-to-text and text-to-speech, Groq LLM, Silero VAD and turn detection) and integrated it with a Yeastar PBX over a peer SIP trunk: the agent knows the caller's room automatically, transfers the call to reception via SIP REFER in about 0.6 s, and handles PBX-originated wake-up calls where the agent speaks within 1.3 s. Validated with G.722 HD audio and DTMF, latency across 20 test calls (about 1 s to the first word), and concurrent calls; wrote the technical report, hotel-IT runbook and CTO/CEO briefs, and planned the 3CX PBX extension.",
+    technologies: ["Python 3.12", "LiveKit Agents", "LiveKit SIP", "Deepgram STT/TTS", "Groq LLM", "Silero VAD", "SIP / VoIP", "Yeastar PBX", "3CX", "G.722"],
+    links: [],
+    screenshots: [],
+  },
+  {
+    id: "15",
+    category: "Agentic AI Platform / Frontend",
+    title: "Voicecake Agent Platform: Owner Web App (Arabic & English)",
+    thumbnail: IMG.code,
+    description:
+      "The web app for the Voicecake agent platform (white-labelled per customer, e.g. Mojeeb), where business owners and their teams watch and steer their AI agents. As the front-end developer I built conversations, approvals (every action that sends or changes something asks Yes / No / Edit first), activity with step-by-step proof, a department-wise rulebook with history and change proposals, people and scope, and live updates over a server-sent event stream. Fully bilingual Arabic and English with right-to-left layout on every page, contract-first against an OpenAPI spec with generated TypeScript types and a single API client, and five page states (loading, empty, error, no access, live). Shipped as a Next.js 16 static export with unit, component and Playwright end-to-end tests in GitHub Actions CI.",
+    technologies: ["Next.js 16", "React 19", "TypeScript", "TailwindCSS 4", "TanStack Query", "Server-Sent Events", "OpenAPI", "i18n / RTL", "Vitest", "Playwright", "GitHub Actions", "Vercel"],
+    links: [],
+    screenshots: [],
+  },
+  {
     id: "1",
     category: "RAG / Conversational AI",
     title: "B1 Chatbot: AI Real Estate Assistant",
