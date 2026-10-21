@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ page_title }}</title>
+<meta name="description" content="{{ description }}">
+<link rel="canonical" href="{{ canonical }}">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="author" content="{{ author.name }}">
+<meta property="og:type" content="{{ og_type }}">
+<meta property="og:site_name" content="{{ site_name }}">
+<meta property="og:title" content="{{ page_title }}">
+<meta property="og:description" content="{{ description }}">
+<meta property="og:url" content="{{ canonical }}">
+<meta property="og:image" content="{{ og_image }}">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ page_title }}">
+<meta name="twitter:description" content="{{ description }}">
+<meta name="twitter:image" content="{{ og_image }}">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.png">
+<link rel="stylesheet" href="{{ hub_path }}/hub.css?v={{ build_id }}">
+<script>
+  // Apply the saved theme before first paint to avoid a light/dark flash.
+  (function () {
+    try {
+      var t = localStorage.getItem('learnhub:theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+{% for item in jsonld %}
+<script type="application/ld+json">{{ item | tojson }}</script>
+{% endfor %}
+{% block head %}{% endblock %}
+</head>
+<body data-page="{{ page }}"{% if topic %} data-topic-id="{{ topic.id }}"{% endif %}>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="{{ hub_path }}/">AI Engineering <span>Learning Hub</span></a>
+      <div class="topbar-actions">
+        {% if page != 'index' %}
+        <a class="pill" href="{{ hub_path }}/" title="All topics">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span class="label-mobile-hide">All topics</span>
+        </a>
+        {% endif %}
+        <button type="button" class="pill icon-only" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a class="pill" href="/" title="Back to portfolio">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          <span class="label-mobile-hide">Portfolio</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    {% block main %}{% endblock %}
+  </main>
+
+  <div class="container">
+    <section class="cta-grid" aria-label="Stay in touch">
+      <div class="cta-card">
+        <h3>Get new topics by email</h3>
+        <p>One short, practical AI-engineering lesson whenever a new topic is published. No spam, unsubscribe any time.</p>
+        <form class="subscribe-form" data-source="{{ page }}:{{ topic.id if topic else 'index' }}" novalidate>
+          <label class="sr-only" for="email-{{ page }}">Email address</label>
+          <input id="email-{{ page }}" type="email" name="email" placeholder="you@example.com" required autocomplete="email">
+          <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button type="submit" class="btn btn-primary">Subscribe</button>
+        </form>
+        <p class="form-msg" aria-live="polite"></p>
+      </div>
+      <div class="cta-card hire">
+        <h3>Need this built for your product?</h3>
+        <p>I build production RAG pipelines, LLM automations and voice agents. Open to freelance projects and full-time roles.</p>
+        <div class="cta-actions">
+          <a class="btn btn-ghost" href="mailto:{{ author.email }}?subject=Project%20enquiry%20from%20the%20Learning%20Hub">Email me</a>
+          <a class="btn btn-ghost" href="{{ author.linkedin }}" target="_blank" rel="noopener">LinkedIn</a>
+          <a class="btn btn-ghost" href="/?q={{ 'What projects has Abdur built and how can I hire him?' | urlencode }}">Ask the AI</a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div>© {{ year }} {{ author.name }} · Written from real projects, not theory.</div>
+      <nav>
+        <a href="{{ hub_path }}/">All topics</a>
+        <a href="/">Portfolio</a>
+        <a href="{{ author.linkedin }}" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="{{ hub_path }}/sitemap.xml">Sitemap</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="{{ hub_path }}/hub.js?v={{ build_id }}" defer></script>
+</body>
+</html>
