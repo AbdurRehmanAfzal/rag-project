@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block main %}
+<section class="hero">
+  <h1>AI Engineering Learning Hub</h1>
+  <p>Machine learning and AI engineering explained the way I learned them: by building real systems. Each topic has a plain-English explanation, working code and interview questions.</p>
+  <div class="hero-stats">
+    <span><strong>{{ topics | length }}</strong> topics</span>
+    <span><strong>{{ categories | length }}</strong> learning paths</span>
+    <span><strong id="readCount">0</strong> read by you</span>
+  </div>
+</section>
+
+<div class="container">
+  <div class="toolbar">
+    <div class="toolbar-inner">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <label class="sr-only" for="searchInput">Search topics</label>
+        <input id="searchInput" class="search-input" type="search" placeholder="Search topics, e.g. chunking, sigmoid, top-k… (press / to focus)" autocomplete="off">
+      </div>
+      <div class="chips" role="group" aria-label="Filter by category">
+        <button type="button" class="chip active" data-cat="all">All</button>
+        {% for cat in categories %}
+        <button type="button" class="chip" data-cat="{{ cat.id }}">{{ cat.name }}</button>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {% for cat in categories %}
+  <section class="category-section" data-cat="{{ cat.id }}" id="{{ cat.id }}">
+    <h2 class="category-title">{{ cat.name }}</h2>
+    {% if cat.description %}<p class="category-desc">{{ cat.description }}</p>{% endif %}
+    <div class="card-grid">
+      {% for t in cat.topics %}
+      <a class="topic-card" href="{{ t.url }}" data-id="{{ t.id }}" data-search="{{ t.search_text }}">
+        <div class="num"><span>{{ '%02d' % t.number }}</span><span class="read-mark">✓ Read</span></div>
+        <h3>{{ t.title }}</h3>
+        <p>{{ t.summary }}</p>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+
+  <p class="empty-state" id="emptyState">No topics match that search yet. Try a broader term.</p>
+</div>
+{% endblock %}

@@ -9,7 +9,7 @@ A single FastAPI service both runs the RAG pipeline and serves the built fronten
 - **RAG pipeline** – `knowledge_base.txt` is chunked and embedded once at startup with `sentence-transformers` (`all-MiniLM-L6-v2`); each query retrieves the top-k chunks by cosine similarity.
 - **Intent-aware chat** – `/api/chat` uses OpenAI `gpt-4o-mini` to classify each query into an intent (`me | projects | resume | skills | contact | certifications | general`) so the frontend can render the right visual component alongside the text reply.
 - **Graceful fallback** – if OpenAI is unavailable, a keyword-based responder (`get_local_response`) keeps answering on the same real data.
-- **Learning Hub** – a data-driven static site at `/learn` (from `learn-hub/topics.json`, no LLM at runtime) covering AI-engineering topics.
+- **Learning Hub** – a statically generated learning site at `/learn` (one crawlable page per topic with SEO/OG/JSON-LD, search, dark mode, reading progress, sitemap, newsletter signup). Content lives in `learn-hub/topics.json`; `learn-hub/build.py` renders it. No LLM at runtime.
 - **Single-service deploy** – FastAPI serves the compiled React app from `frontend/dist` at `/`, so production is same-origin (no separate frontend host).
 
 ## Tech Stack
@@ -31,7 +31,7 @@ rag-project/
 ├── requirements.txt        # Python dependencies
 ├── Dockerfile              # Multi-stage: build frontend, then serve from Python
 ├── docker-compose.yml      # Traefik-labeled service on the external n8n_default network
-├── learn-hub/              # Static AI-engineering learning hub (topics.json + index.html)
+├── learn-hub/              # Learning hub: topics.json (content) + build.py + templates/ + static/ → site/ (generated, gitignored)
 ├── frontend/               # React 19 + Vite + Tailwind app
 │   └── src/
 │       ├── App.tsx
@@ -57,6 +57,9 @@ Used by the frontend.
 
 ### `POST /ask`
 Simpler RAG endpoint that returns the answer plus its source chunks.
+
+### `POST /api/learn/subscribe`
+Newsletter signup from the Learning Hub (`{ "email": "...", "source": "topic:chunking" }`). Validates the address, drops honeypot submissions, and persists via the same lead sink as recruiter leads (`leads.jsonl` + optional `LEAD_WEBHOOK_URL`).
 
 ```json
 // Request
@@ -96,6 +99,14 @@ uvicorn main:app --reload --port 8000
 ```
 
 The chat endpoint is now at `http://localhost:8000/api/chat`.
+
+### Learning Hub
+
+```bash
+python learn-hub/build.py   # regenerates learn-hub/site/ from topics.json + templates
+```
+
+Run this after editing `learn-hub/topics.json` or anything in `learn-hub/templates/` or `learn-hub/static/`; the API then serves the result at `http://localhost:8000/learn/`. The Docker image runs the build automatically.
 
 ### 2. Frontend
 

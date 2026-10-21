@@ -47,6 +47,12 @@ cd rag-project
 ```bash
 cat > .env <<'EOF'
 OPENAI_API_KEY=sk-...your-real-key...
+# Optional: durable sink for captured leads (recruiters who share contact
+# info / hiring intent in the chat). Point this at an n8n webhook so leads
+# survive container redeploys and can be forwarded to email/Sheets/etc.
+# Without it, leads are only written to an ephemeral leads.jsonl in the
+# container. n8n is already reachable on the shared n8n_default network.
+LEAD_WEBHOOK_URL=https://your-n8n-instance/webhook/portfolio-lead
 EOF
 ```
 

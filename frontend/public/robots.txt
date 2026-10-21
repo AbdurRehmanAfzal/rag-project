@@ -24,3 +24,4 @@ User-agent: CCBot
 Allow: /
 
 Sitemap: https://abdurrehmanafzal.cloud/sitemap.xml
+Sitemap: https://abdurrehmanafzal.cloud/learn/sitemap.xml

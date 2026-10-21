@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block main %}
+<article class="article container narrow">
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a href="{{ hub_path }}/">Learning Hub</a><span class="sep">/</span>
+    <a href="{{ hub_path }}/#{{ topic.category.id }}">{{ topic.category.name }}</a><span class="sep">/</span>
+    <span>{{ topic.title }}</span>
+  </nav>
+
+  <h1>{{ topic.title }}</h1>
+  <p class="lede">{{ topic.summary }}</p>
+  <div class="article-meta">
+    <span>Topic {{ topic.number }} of {{ topics | length }}</span>
+    <span>{{ topic.reading_time }} min read</span>
+    <span>By <a href="/">{{ author.name }}</a></span>
+  </div>
+
+  <section class="section">
+    <h2>What it is</h2>
+    <p>{{ topic.whatIs }}</p>
+  </section>
+
+  <section class="section">
+    <h2>Why it's needed</h2>
+    <p>{{ topic.why }}</p>
+  </section>
+
+  <section class="section">
+    <h2>How it works</h2>
+    <ul>
+      {% for item in topic.how %}<li>{{ item }}</li>{% endfor %}
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>Code example</h2>
+    <div class="code-wrap">
+      <button type="button" class="copy-btn" aria-label="Copy code">Copy</button>
+      <pre class="code-block"><code>{{ topic.code_html }}</code></pre>
+    </div>
+  </section>
+
+  {% if topic.usedIn %}
+  <section class="section">
+    <h2>Where I used this</h2>
+    <div class="used-in">
+      <p>{{ topic.usedIn }}</p>
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="section">
+    <h2>Use cases</h2>
+    <ul>
+      {% for item in topic.useCases %}<li>{{ item }}</li>{% endfor %}
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>Interview questions</h2>
+    {% for pair in topic.qa %}
+    <details class="qa"{% if loop.first %} open{% endif %}>
+      <summary>{{ pair.q }}</summary>
+      <div class="qa-a">{{ pair.a }}</div>
+    </details>
+    {% endfor %}
+  </section>
+
+  <section class="section">
+    <a class="btn btn-primary" href="/?q={{ ('Explain ' ~ topic.title ~ ' and where you used it') | urlencode }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Ask the AI assistant about this topic
+    </a>
+  </section>
+
+  <nav class="pager" aria-label="Previous and next topic">
+    {% if topic.prev %}
+    <a class="prev" href="{{ topic.prev.url }}"><small>← Previous</small><strong>{{ topic.prev.title }}</strong></a>
+    {% else %}<span class="spacer"></span>{% endif %}
+    {% if topic.next %}
+    <a class="next" href="{{ topic.next.url }}"><small>Next →</small><strong>{{ topic.next.title }}</strong></a>
+    {% else %}<span class="spacer"></span>{% endif %}
+  </nav>
+
+  {% if topic.related %}
+  <section class="related">
+    <h2>Related topics</h2>
+    <div class="card-grid">
+      {% for r in topic.related %}
+      <a class="topic-card" href="{{ r.url }}">
+        <div class="num"><span>{{ '%02d' % r.number }}</span></div>
+        <h3>{{ r.title }}</h3>
+        <p>{{ r.summary }}</p>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</article>
+{% endblock %}
