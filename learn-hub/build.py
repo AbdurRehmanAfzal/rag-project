@@ -81,11 +81,16 @@ def highlight(code: str) -> Markup:
     return Markup(_HL_PATTERN.sub(repl, escaped))
 
 
+def paras(text: str) -> list[str]:
+    """Split a field on blank lines so templates can render real paragraphs."""
+    return [p.strip() for p in re.split(r"\n\s*\n", text or "") if p.strip()]
+
+
 def reading_minutes(topic: dict) -> int:
     text = " ".join(
         [topic["whatIs"], topic["why"], *topic["how"], topic["code"], *topic["useCases"]]
         + [p["q"] + " " + p["a"] for p in topic["qa"]]
-        + [topic.get("usedIn", "")]
+        + [topic.get("usedIn", ""), *topic.get("pitfalls", [])]
     )
     words = len(text.split())
     return max(1, round(words / 200))
@@ -216,6 +221,7 @@ def build() -> None:
         trim_blocks=True,
         lstrip_blocks=True,
     )
+    env.filters["paras"] = paras
 
     categories, flat = load_topics()
     today = dt.date.today().isoformat()
