@@ -18,12 +18,12 @@
 
   <section class="section">
     <h2>What it is</h2>
-    <p>{{ topic.whatIs }}</p>
+    {% for p in topic.whatIs | paras %}<p>{{ p }}</p>{% endfor %}
   </section>
 
   <section class="section">
     <h2>Why it's needed</h2>
-    <p>{{ topic.why }}</p>
+    {% for p in topic.why | paras %}<p>{{ p }}</p>{% endfor %}
   </section>
 
   <section class="section">
@@ -56,6 +56,15 @@
       {% for item in topic.useCases %}<li>{{ item }}</li>{% endfor %}
     </ul>
   </section>
+
+  {% if topic.pitfalls %}
+  <section class="section">
+    <h2>Common mistakes</h2>
+    <ul>
+      {% for item in topic.pitfalls %}<li>{{ item }}</li>{% endfor %}
+    </ul>
+  </section>
+  {% endif %}
 
   <section class="section">
     <h2>Interview questions</h2>
