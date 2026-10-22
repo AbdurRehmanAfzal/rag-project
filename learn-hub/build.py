@@ -38,7 +38,7 @@ TOPICS_FILE = ROOT / "topics.json"
 SITE_URL = "https://abdurrehmanafzal.cloud"
 HUB_PATH = "/learn"
 SITE_NAME = "AI Engineering Learning Hub"
-OG_IMAGE = f"{SITE_URL}/assets/me/abdur.png"
+OG_IMAGE = f"{SITE_URL}/assets/learn-og.jpg"
 
 AUTHOR = {
     "name": "Abdur Rehman Afzal",
